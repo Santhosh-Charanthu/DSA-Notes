@@ -1,0 +1,344 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Edit Distance</title>
+<style>
+:root{color-scheme:light;--fg:#0f172a;--muted:#64748b;--border:#e2e8f0;--accent:#0284c7;--accent-soft:#e0f2fe;--card:#ffffff;--code-bg:#0f172a;--code-fg:#e2e8f0;}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{font-family:'Inter',ui-sans-serif,system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;background:linear-gradient(180deg,#e0f2fe 0%,#f0f9ff 60%,#ffffff 100%);color:var(--fg);min-height:100vh;padding:32px 16px;line-height:1.75;-webkit-font-smoothing:antialiased}
+.page{max-width:920px;margin:0 auto}
+.doc{background:var(--card);border-radius:18px;box-shadow:0 20px 60px -20px rgba(2,132,199,.25),0 4px 14px -4px rgba(15,23,42,.08);padding:clamp(24px,5vw,60px);border:1px solid rgba(148,163,184,.2)}
+.title-row{display:flex;flex-wrap:wrap;align-items:center;gap:12px;margin-bottom:8px}
+.badge{display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border-radius:999px;background:var(--accent-soft);color:var(--accent);font-size:13px;font-weight:600;text-decoration:none;border:1px solid rgba(2,132,199,.2)}
+.badge:hover{background:#bae6fd}
+h1,h2,h3,h4,h5,h6{font-weight:700;line-height:1.25;margin:1.8em 0 .6em;letter-spacing:-.01em}
+h1{font-size:2.15rem;border-bottom:1px solid var(--border);padding-bottom:.4em;margin-top:0}
+h2{font-size:1.6rem}
+h3{font-size:1.3rem}
+h4{font-size:1.1rem}
+p{margin:.9em 0}
+a{color:var(--accent);text-decoration:underline;text-underline-offset:3px}
+strong{font-weight:700}
+del{color:var(--muted)}
+ul,ol{margin:.8em 0;padding-left:1.6em}
+li{margin:.25em 0}
+blockquote{margin:1.2em 0;padding:.5em 1.1em;border-left:4px solid var(--accent);background:var(--accent-soft);color:#334155;border-radius:0 .5rem .5rem 0}
+hr{margin:2em 0;border:0;border-top:1px solid var(--border)}
+img{max-width:100%;border-radius:.5rem;margin:1em 0}
+code{font-family:'JetBrains Mono',ui-monospace,'SF Mono',Menlo,Consolas,monospace;font-size:.9em;padding:.15em .4em;background:#f1f5f9;color:#0c4a6e;border-radius:.35rem;border:1px solid var(--border)}
+pre{margin:1.2em 0;padding:1rem 1.1rem;background:var(--code-bg);color:var(--code-fg);border-radius:.7rem;overflow-x:auto;font-size:.9rem;line-height:1.55;border:1px solid #1e293b}
+pre code{background:transparent;border:0;padding:0;color:inherit;font-size:inherit}
+table{width:100%;border-collapse:collapse;margin:1.2em 0;display:block;overflow-x:auto;border:1px solid var(--border);border-radius:.6rem}
+thead{background:var(--accent-soft)}
+th,td{padding:.65em .9em;border-bottom:1px solid var(--border);text-align:left}
+th{font-weight:600}
+tr:last-child td{border-bottom:0}
+.callout{margin:1.5em 0;padding:1rem 1.1rem;border-radius:.8rem;border:1px solid var(--co-b,var(--border));background:var(--co-bg,#f8fafc);box-shadow:0 1px 2px rgba(15,23,42,.04)}
+.callout-title{display:flex;align-items:center;gap:.55rem;font-weight:700;font-size:1rem;margin-bottom:.5rem;color:var(--co-fg,var(--fg))}
+.callout-icon{font-size:1.15rem;line-height:1}
+.callout-body>:first-child{margin-top:0}
+.callout-body>:last-child{margin-bottom:0}
+.callout-note{--co-bg:#eff6ff;--co-b:#bfdbfe;--co-fg:#1e40af}
+.callout-important{--co-bg:#faf5ff;--co-b:#e9d5ff;--co-fg:#6b21a8}
+.callout-warning{--co-bg:#fffbeb;--co-b:#fde68a;--co-fg:#92400e}
+.callout-tip{--co-bg:#ecfdf5;--co-b:#a7f3d0;--co-fg:#065f46}
+.callout-question{--co-bg:#ecfeff;--co-b:#a5f3fc;--co-fg:#155e75}
+.callout-observation{--co-bg:#f0fdfa;--co-b:#99f6e4;--co-fg:#115e59}
+.callout-complexity{--co-bg:#fef2f2;--co-b:#fecaca;--co-fg:#991b1b}
+.callout-summary{--co-bg:#eef2ff;--co-b:#c7d2fe;--co-fg:#3730a3}
+.callout-advantage{--co-bg:#ecfdf5;--co-b:#a7f3d0;--co-fg:#065f46}
+.callout-disadvantage{--co-bg:#fef2f2;--co-b:#fecaca;--co-fg:#991b1b}
+.token.comment,.token.prolog,.token.doctype,.token.cdata{color:#94a3b8}
+.token.punctuation{color:#cbd5e1}
+.token.property,.token.tag,.token.constant,.token.symbol,.token.deleted{color:#fca5a5}
+.token.boolean,.token.number{color:#fdba74}
+.token.selector,.token.attr-name,.token.string,.token.char,.token.builtin,.token.inserted{color:#86efac}
+.token.operator,.token.entity,.token.url,.token.variable{color:#7dd3fc}
+.token.atrule,.token.attr-value,.token.function,.token.class-name{color:#f0abfc}
+.token.keyword{color:#c4b5fd}
+.token.regex,.token.important{color:#fcd34d}
+@media (max-width:640px){body{padding:12px 8px}.doc{padding:20px 16px;border-radius:12px}h1{font-size:1.7rem}}
+@media print{body{background:#fff;padding:0}.doc{box-shadow:none;border:0;padding:0;max-width:none}}
+</style>
+</head>
+<body>
+<main class="page"><article class="doc"><div class="title-row"><h1>Edit Distance</h1><a class="badge" href="https://leetcode.com/problems/edit-distance/" target="_blank" rel="noopener noreferrer">🔗 Problem</a></div>
+
+
+<h2>Pattern</h2>
+
+
+<ul>
+<li><strong>DP on Strings</strong></li>
+<li><strong>Prefix vs Prefix DP</strong></li>
+<li><strong>Decision + Optimization (Minimum Operations) DP</strong></li>
+</ul>
+
+
+<hr>
+
+
+<div class="callout callout-observation"><div class="callout-title"><span class="callout-icon">🔍</span><span>Key Observation</span></div><div class="callout-body"><p>The problem asks:</p>
+<blockquote>
+<p><strong>What is the minimum number of operations required to convert one string into another?</strong></p>
+</blockquote>
+<p>Allowed operations:</p>
+<ul>
+<li>Insert</li>
+<li>Delete</li>
+<li>Replace</li>
+</ul>
+<p>Since we need the <strong>minimum</strong> number of operations, this is an <strong>Optimization DP</strong>, so the recurrence uses <strong><code>min()</code></strong>.</p>
+<hr>
+</div></div>
+<div class="callout callout-tip"><div class="callout-title"><span class="callout-icon">🧠</span><span>Intuition</span></div><div class="callout-body"><p>We compare both strings from the end of their prefixes.</p>
+<p>At every step, we ask:</p>
+<blockquote>
+<p><strong>&quot;Do the current characters already match?&quot;</strong></p>
+</blockquote>
+<h3>Case 1: Characters Match</h3>
+<pre class="language-text"><code class="language-text">word1[i-1] == word2[j-1]</code></pre><p>No operation is required.</p>
+<p>Simply move to the previous characters in both strings.</p>
+<p>Reason:</p>
+<p>The current characters are already equal, so they contribute nothing to the edit distance.</p>
+<hr>
+<h3>Case 2: Characters Don&#39;t Match</h3>
+<pre class="language-text"><code class="language-text">word1[i-1] != word2[j-1]</code></pre><p>We have <strong>three possible operations</strong>.</p>
+<h3>1. Insert</h3>
+<p>Insert <code>word2[j-1]</code> into <code>word1</code>.</p>
+<p>After insertion:</p>
+<ul>
+<li>The current character of <code>word2</code> is matched.</li>
+<li><code>word1</code> stays at the same position because the inserted character handled the match.</li>
+</ul>
+<p>Move to:</p>
+<pre class="language-text"><code class="language-text">dp(i, j-1)</code></pre><p>Cost:</p>
+<pre class="language-text"><code class="language-text">1 + dp(i, j-1)</code></pre><hr>
+<h3>2. Delete</h3>
+<p>Delete <code>word1[i-1]</code>.</p>
+<p>After deletion:</p>
+<ul>
+<li>Remove the current character from <code>word1</code>.</li>
+<li>Continue matching the remaining characters.</li>
+</ul>
+<p>Move to:</p>
+<pre class="language-text"><code class="language-text">dp(i-1, j)</code></pre><p>Cost:</p>
+<pre class="language-text"><code class="language-text">1 + dp(i-1, j)</code></pre><hr>
+<h3>3. Replace</h3>
+<p>Replace <code>word1[i-1]</code> with <code>word2[j-1]</code>.</p>
+<p>After replacement:</p>
+<ul>
+<li>Both current characters become equal.</li>
+<li>Move diagonally.</li>
+</ul>
+<p>Move to:</p>
+<pre class="language-text"><code class="language-text">dp(i-1, j-1)</code></pre><p>Cost:</p>
+<pre class="language-text"><code class="language-text">1 + dp(i-1, j-1)</code></pre><hr>
+<p>Choose the operation with the <strong>minimum cost</strong>.</p>
+<hr>
+</div></div>
+<h2>State</h2>
+
+
+<pre class="language-text"><code class="language-text">dp(i, j)</code></pre>
+
+<p>Represents:</p>
+
+
+<blockquote>
+<p><strong>Minimum operations required to convert the first <code>i</code> characters of <code>word1</code> into the first <code>j</code> characters of <code>word2</code>.</strong></p>
+</blockquote>
+
+
+<hr>
+
+
+<h2>Transition</h2>
+
+
+<h3>Characters Match</h3>
+
+
+<pre class="language-text"><code class="language-text">dp(i, j) = dp(i-1, j-1)</code></pre>
+
+<p>Reason:</p>
+
+
+<p>No operation is needed.</p>
+
+
+<hr>
+
+
+<h3>Characters Don&#39;t Match</h3>
+
+
+<p>Choose the minimum among:</p>
+
+
+<pre class="language-text"><code class="language-text">Insert  → 1 + dp(i, j-1)
+
+Delete  → 1 + dp(i-1, j)
+
+Replace → 1 + dp(i-1, j-1)</code></pre>
+
+<p>Take the minimum of all three.</p>
+
+
+<hr>
+
+
+<h2>Base Cases</h2>
+
+
+<h3>Source becomes empty</h3>
+
+
+<pre class="language-text"><code class="language-text">i == 0</code></pre>
+
+<p>Return:</p>
+
+
+<pre class="language-text"><code class="language-text">j</code></pre>
+
+<p>Reason:</p>
+
+
+<p>The only way to convert an empty string into a string of length <code>j</code> is to <strong>insert all <code>j</code> characters</strong>.</p>
+
+
+<hr>
+
+
+<h3>Target becomes empty</h3>
+
+
+<pre class="language-text"><code class="language-text">j == 0</code></pre>
+
+<p>Return:</p>
+
+
+<pre class="language-text"><code class="language-text">i</code></pre>
+
+<p>Reason:</p>
+
+
+<p>The only way to convert a string of length <code>i</code> into an empty string is to <strong>delete all <code>i</code> characters</strong>.</p>
+
+
+<hr>
+
+
+<div class="callout callout-note"><div class="callout-title"><span class="callout-icon">🧾</span><span>Algorithm</span></div><div class="callout-body"><pre class="language-text"><code class="language-text">Compare current characters
+        │
+Characters Match?
+├── Yes → Move diagonally
+└── No
+      │
+      ├── Insert
+      ├── Delete
+      └── Replace
+            │
+Take minimum cost
+        │
+Store in DP</code></pre><hr>
+</div></div>
+<h2>Complexity</h2>
+
+
+<ul>
+<li><strong>Time:</strong> O(N × M)</li>
+<li><strong>Space:</strong> O(N × M)</li>
+</ul>
+
+
+<p>Space Optimization:</p>
+
+
+<p>Since each state depends only on the <strong>previous row</strong> and the <strong>current row</strong>, it can be optimized to <strong>O(M)</strong> space.</p>
+
+
+<hr>
+
+
+<h2>Recognition Pattern</h2>
+
+
+<p>If the question asks:</p>
+
+
+<ul>
+<li>Minimum edits</li>
+<li>Convert one string into another</li>
+<li>Insert / Delete / Replace operations</li>
+<li>Minimum transformation cost</li>
+</ul>
+
+
+<p>Immediately think:</p>
+
+
+<pre class="language-text"><code class="language-text">DP on Strings
+      ↓
+Prefix vs Prefix DP
+      ↓
+Decision + Optimization
+      ↓
+Characters Match?
+├── Yes → Move diagonally
+└── No
+      ├── Insert
+      ├── Delete
+      └── Replace
+      ↓
+Take minimum</code></pre>
+
+<hr>
+
+
+<h2>Interview Intuition</h2>
+
+
+<p>Think of standing at the last character of both prefixes.</p>
+
+
+<p>If the characters are already the same, no work is needed—just move to the previous characters.</p>
+
+
+<p>If they are different, ask:</p>
+
+
+<blockquote>
+<p><strong>&quot;What is the cheapest way to make these prefixes equal?&quot;</strong></p>
+</blockquote>
+
+
+<p>You have exactly three choices:</p>
+
+
+<ul>
+<li><strong>Insert</strong> the required character.</li>
+<li><strong>Delete</strong> the extra character.</li>
+<li><strong>Replace</strong> the wrong character.</li>
+</ul>
+
+
+<p>Each operation costs <strong>1</strong>, so recursively compute the remaining cost and choose the <strong>minimum</strong>.</p>
+
+
+<p>The key observation is:</p>
+
+
+<ul>
+<li><strong>Matching characters</strong> require <strong>no operation</strong>.</li>
+<li><strong>Mismatching characters</strong> force exactly one of the three edit operations.</li>
+</ul>
+
+
+<p>That&#39;s why this problem is a <strong>Decision + Optimization DP</strong> that uses <strong><code>min()</code></strong> instead of <code>max()</code> or <code>+</code>.</p>
+</article></main>
+</body>
+</html>
