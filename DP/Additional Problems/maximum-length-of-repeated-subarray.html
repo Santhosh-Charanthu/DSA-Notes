@@ -1,0 +1,466 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Maximum Length of Repeated Subarray</title>
+<style>
+:root{color-scheme:light;--fg:#0f172a;--muted:#64748b;--border:#e2e8f0;--accent:#0284c7;--accent-soft:#e0f2fe;--card:#ffffff;--code-bg:#0f172a;--code-fg:#e2e8f0;}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{font-family:'Inter',ui-sans-serif,system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;background:linear-gradient(180deg,#e0f2fe 0%,#f0f9ff 60%,#ffffff 100%);color:var(--fg);min-height:100vh;padding:32px 16px;line-height:1.75;-webkit-font-smoothing:antialiased}
+.page{max-width:920px;margin:0 auto}
+.doc{background:var(--card);border-radius:18px;box-shadow:0 20px 60px -20px rgba(2,132,199,.25),0 4px 14px -4px rgba(15,23,42,.08);padding:clamp(24px,5vw,60px);border:1px solid rgba(148,163,184,.2)}
+.title-row{display:flex;flex-wrap:wrap;align-items:center;gap:12px;margin-bottom:8px}
+.badge{display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border-radius:999px;background:var(--accent-soft);color:var(--accent);font-size:13px;font-weight:600;text-decoration:none;border:1px solid rgba(2,132,199,.2)}
+.badge:hover{background:#bae6fd}
+h1,h2,h3,h4,h5,h6{font-weight:700;line-height:1.25;margin:1.8em 0 .6em;letter-spacing:-.01em}
+h1{font-size:2.15rem;border-bottom:1px solid var(--border);padding-bottom:.4em;margin-top:0}
+h2{font-size:1.6rem}
+h3{font-size:1.3rem}
+h4{font-size:1.1rem}
+p{margin:.9em 0}
+a{color:var(--accent);text-decoration:underline;text-underline-offset:3px}
+strong{font-weight:700}
+del{color:var(--muted)}
+ul,ol{margin:.8em 0;padding-left:1.6em}
+li{margin:.25em 0}
+blockquote{margin:1.2em 0;padding:.5em 1.1em;border-left:4px solid var(--accent);background:var(--accent-soft);color:#334155;border-radius:0 .5rem .5rem 0}
+hr{margin:2em 0;border:0;border-top:1px solid var(--border)}
+img{max-width:100%;border-radius:.5rem;margin:1em 0}
+code{font-family:'JetBrains Mono',ui-monospace,'SF Mono',Menlo,Consolas,monospace;font-size:.9em;padding:.15em .4em;background:#f1f5f9;color:#0c4a6e;border-radius:.35rem;border:1px solid var(--border)}
+pre{margin:1.2em 0;padding:1rem 1.1rem;background:var(--code-bg);color:var(--code-fg);border-radius:.7rem;overflow-x:auto;font-size:.9rem;line-height:1.55;border:1px solid #1e293b}
+pre code{background:transparent;border:0;padding:0;color:inherit;font-size:inherit}
+table{width:100%;border-collapse:collapse;margin:1.2em 0;display:block;overflow-x:auto;border:1px solid var(--border);border-radius:.6rem}
+thead{background:var(--accent-soft)}
+th,td{padding:.65em .9em;border-bottom:1px solid var(--border);text-align:left}
+th{font-weight:600}
+tr:last-child td{border-bottom:0}
+.callout{margin:1.5em 0;padding:1rem 1.1rem;border-radius:.8rem;border:1px solid var(--co-b,var(--border));background:var(--co-bg,#f8fafc);box-shadow:0 1px 2px rgba(15,23,42,.04)}
+.callout-title{display:flex;align-items:center;gap:.55rem;font-weight:700;font-size:1rem;margin-bottom:.5rem;color:var(--co-fg,var(--fg))}
+.callout-icon{font-size:1.15rem;line-height:1}
+.callout-body>:first-child{margin-top:0}
+.callout-body>:last-child{margin-bottom:0}
+.callout-note{--co-bg:#eff6ff;--co-b:#bfdbfe;--co-fg:#1e40af}
+.callout-important{--co-bg:#faf5ff;--co-b:#e9d5ff;--co-fg:#6b21a8}
+.callout-warning{--co-bg:#fffbeb;--co-b:#fde68a;--co-fg:#92400e}
+.callout-tip{--co-bg:#ecfdf5;--co-b:#a7f3d0;--co-fg:#065f46}
+.callout-question{--co-bg:#ecfeff;--co-b:#a5f3fc;--co-fg:#155e75}
+.callout-observation{--co-bg:#f0fdfa;--co-b:#99f6e4;--co-fg:#115e59}
+.callout-complexity{--co-bg:#fef2f2;--co-b:#fecaca;--co-fg:#991b1b}
+.callout-summary{--co-bg:#eef2ff;--co-b:#c7d2fe;--co-fg:#3730a3}
+.callout-advantage{--co-bg:#ecfdf5;--co-b:#a7f3d0;--co-fg:#065f46}
+.callout-disadvantage{--co-bg:#fef2f2;--co-b:#fecaca;--co-fg:#991b1b}
+.token.comment,.token.prolog,.token.doctype,.token.cdata{color:#94a3b8}
+.token.punctuation{color:#cbd5e1}
+.token.property,.token.tag,.token.constant,.token.symbol,.token.deleted{color:#fca5a5}
+.token.boolean,.token.number{color:#fdba74}
+.token.selector,.token.attr-name,.token.string,.token.char,.token.builtin,.token.inserted{color:#86efac}
+.token.operator,.token.entity,.token.url,.token.variable{color:#7dd3fc}
+.token.atrule,.token.attr-value,.token.function,.token.class-name{color:#f0abfc}
+.token.keyword{color:#c4b5fd}
+.token.regex,.token.important{color:#fcd34d}
+@media (max-width:640px){body{padding:12px 8px}.doc{padding:20px 16px;border-radius:12px}h1{font-size:1.7rem}}
+@media print{body{background:#fff;padding:0}.doc{box-shadow:none;border:0;padding:0;max-width:none}}
+</style>
+</head>
+<body>
+<main class="page"><article class="doc"><div class="title-row"><h1>Maximum Length of Repeated Subarray</h1><a class="badge" href="https://leetcode.com/problems/maximum-length-of-repeated-subarray/description/" target="_blank" rel="noopener noreferrer">🔗 Problem</a></div>
+
+
+<h2>Pattern</h2>
+
+
+<ul>
+<li><strong>DP on Arrays</strong></li>
+<li><strong>Prefix vs Prefix DP</strong></li>
+<li><strong>Decision + Optimization DP</strong></li>
+<li><strong>Contiguous Matching DP</strong></li>
+<li><strong>Similar to LCS, but for Subarrays (Contiguous)</strong></li>
+</ul>
+
+
+<hr>
+
+
+<div class="callout callout-observation"><div class="callout-title"><span class="callout-icon">🔍</span><span>Key Observation</span></div><div class="callout-body"><p>The problem asks:</p>
+<blockquote>
+<p><strong>Find the maximum length of a common subarray present in both arrays.</strong></p>
+</blockquote>
+<p>The keyword is:</p>
+<pre class="language-text"><code class="language-text">Subarray</code></pre><p>A <strong>subarray must be contiguous</strong>.</p>
+<p>Unlike a subsequence, we <strong>cannot skip elements</strong>. Once a mismatch occurs, the current common subarray immediately breaks.</p>
+<p>This is the biggest difference from LCS.</p>
+<hr>
+</div></div>
+<div class="callout callout-tip"><div class="callout-title"><span class="callout-icon">🧠</span><span>Intuition</span></div><div class="callout-body"><p>Imagine you&#39;re extending a common subarray.</p>
+<p>At every pair of indices <code>(i, j)</code>, ask:</p>
+<blockquote>
+<p><strong>&quot;What is the length of the longest common subarray ending exactly at <code>nums1[i]</code> and <code>nums2[j]</code>?&quot;</strong></p>
+</blockquote>
+<p>Notice the words:</p>
+<blockquote>
+<p><strong>ending exactly at</strong></p>
+</blockquote>
+<p>This is a <strong>local state</strong>, not the best answer seen so far.</p>
+<hr>
+<h3>Case 1: Elements Match</h3>
+<pre class="language-text"><code class="language-text">nums1[i] == nums2[j]</code></pre><p>The current common subarray can be extended.</p>
+<p>Move diagonally.</p>
+<p>Reason:</p>
+<p>If the previous elements were also part of a common subarray, simply extend it by one.</p>
+<hr>
+<h3>Case 2: Elements Don&#39;t Match</h3>
+<pre class="language-text"><code class="language-text">nums1[i] != nums2[j]</code></pre><p>The current common subarray ends immediately.</p>
+<p>Return:</p>
+<pre class="language-text"><code class="language-text">0</code></pre><p>Reason:</p>
+<p>A contiguous subarray cannot continue after a mismatch.</p>
+<p>Unlike LCS, we are <strong>not allowed to skip elements</strong>.</p>
+<hr>
+</div></div>
+<h2>State</h2>
+
+
+<pre class="language-text"><code class="language-text">dp(i, j)</code></pre>
+
+<p>Represents:</p>
+
+
+<blockquote>
+<p><strong>Length of the longest common subarray ending exactly at <code>nums1[i]</code> and <code>nums2[j]</code>.</strong></p>
+</blockquote>
+
+
+<p>This is the most important idea of the problem.</p>
+
+
+<p>Notice that this is <strong>not</strong>:</p>
+
+
+<blockquote>
+<p>Maximum common subarray in the prefixes.</p>
+</blockquote>
+
+
+<p>It only describes subarrays ending at the current indices.</p>
+
+
+<hr>
+
+
+<h2>Transition</h2>
+
+
+<h3>Elements Match</h3>
+
+
+<pre class="language-text"><code class="language-text">dp(i, j) = 1 + dp(i-1, j-1)</code></pre>
+
+<p>Reason:</p>
+
+
+<p>Extend the previous common subarray.</p>
+
+
+<hr>
+
+
+<h3>Elements Don&#39;t Match</h3>
+
+
+<pre class="language-text"><code class="language-text">dp(i, j) = 0</code></pre>
+
+<p>Reason:</p>
+
+
+<p>The contiguous sequence is broken.</p>
+
+
+<hr>
+
+
+<h2>Base Cases</h2>
+
+
+<h3>One array is exhausted</h3>
+
+
+<pre class="language-text"><code class="language-text">i &lt; 0 || j &lt; 0</code></pre>
+
+<p>Return:</p>
+
+
+<pre class="language-text"><code class="language-text">0</code></pre>
+
+<p>Reason:</p>
+
+
+<p>No common subarray can exist if one array has no elements.</p>
+
+
+<hr>
+
+
+<div class="callout callout-note"><div class="callout-title"><span class="callout-icon">🧾</span><span>Algorithm</span></div><div class="callout-body"><pre class="language-text"><code class="language-text">Compare current elements
+        │
+Elements Equal?
+├── Yes
+│      │
+│      └── Extend previous common subarray
+│             1 + Diagonal
+│
+└── No
+       │
+       └── Current subarray breaks
+              Length = 0
+
+Update Global Maximum</code></pre><hr>
+</div></div>
+<h2>Complexity</h2>
+
+
+<h3>Memoization</h3>
+
+
+<ul>
+<li><strong>Time:</strong> O(N × M)</li>
+<li><strong>Space:</strong> O(N × M)</li>
+</ul>
+
+
+<h3>Tabulation</h3>
+
+
+<ul>
+<li><strong>Time:</strong> O(N × M)</li>
+<li><strong>Space:</strong> O(N × M)</li>
+</ul>
+
+
+<h3>Space Optimized</h3>
+
+
+<ul>
+<li><strong>Time:</strong> O(N × M)</li>
+<li><strong>Space:</strong> O(M)</li>
+</ul>
+
+
+<hr>
+
+
+<h2>Recognition Pattern</h2>
+
+
+<p>If the problem contains words like:</p>
+
+
+<ul>
+<li>Longest Common <strong>Substring</strong></li>
+<li>Maximum Length of Repeated <strong>Subarray</strong></li>
+<li>Continuous Matching</li>
+<li>Contiguous Sequence</li>
+</ul>
+
+
+<p>Immediately think:</p>
+
+
+<pre class="language-text"><code class="language-text">DP on Arrays / Strings
+        ↓
+Contiguous Matching
+        ↓
+State = Ending at (i, j)
+        ↓
+Match?
+├── Yes → 1 + Diagonal
+└── No  → 0
+        ↓
+Answer = Maximum value in entire DP table</code></pre>
+
+<hr>
+
+
+<h2>Interview Intuition</h2>
+
+
+<p>The biggest mistake is treating this like LCS.</p>
+
+
+<p>In LCS:</p>
+
+
+<blockquote>
+<p>We are allowed to skip elements.</p>
+</blockquote>
+
+
+<p>So on mismatch:</p>
+
+
+<pre class="language-text"><code class="language-text">max(up, left)</code></pre>
+
+<p>works.</p>
+
+
+<p>In this problem:</p>
+
+
+<blockquote>
+<p>We are <strong>not</strong> allowed to skip elements because the subarray must remain contiguous.</p>
+</blockquote>
+
+
+<p>Therefore, once a mismatch occurs:</p>
+
+
+<pre class="language-text"><code class="language-text">Current Common Subarray = Broken</code></pre>
+
+<p>So,</p>
+
+
+<pre class="language-text"><code class="language-text">dp(i, j) = 0</code></pre>
+
+<p>instead of <code>max(up, left)</code>.</p>
+
+
+<hr>
+
+
+<h2>Why We Need a Global Maximum</h2>
+
+
+<p>The DP state only tells us:</p>
+
+
+<blockquote>
+<p><strong>Length of the common subarray ending at <code>(i, j)</code></strong></p>
+</blockquote>
+
+
+<p>The longest common subarray may end anywhere in the arrays.</p>
+
+
+<p>Example:</p>
+
+
+<pre class="language-text"><code class="language-text">nums1 = [1,2,3,2,1]
+nums2 = [5,2,3,2,7]</code></pre>
+
+<p>The answer is:</p>
+
+
+<pre class="language-text"><code class="language-text">[2,3,2]</code></pre>
+
+<p>which ends before the last indices.</p>
+
+
+<p>So we maintain:</p>
+
+
+<pre class="language-text"><code class="language-text">answer = max(answer, dp(i, j))</code></pre>
+
+<p>while computing every state.</p>
+
+
+<hr>
+
+
+<h2>Why We Don&#39;t Return <code>max(up, left)</code></h2>
+
+
+<p>Your recursion visits:</p>
+
+
+<pre class="language-text"><code class="language-text">(i-1, j)
+
+(i, j-1)</code></pre>
+
+<p>These calls are <strong>not</strong> part of the DP transition.</p>
+
+
+<p>They are made only to <strong>visit every state</strong> and update the global maximum.</p>
+
+
+<p>The current state depends only on:</p>
+
+
+<pre class="language-text"><code class="language-text">(i-1, j-1)</code></pre>
+
+<p>So the recurrence is:</p>
+
+
+<pre class="language-text"><code class="language-text">Match
+    ↓
+1 + Diagonal
+
+Mismatch
+    ↓
+0</code></pre>
+
+<p>The answer is stored separately as the <strong>maximum value among all DP states</strong>.</p>
+
+
+<hr>
+
+
+<h2>Difference from LCS</h2>
+
+
+<table>
+<thead>
+<tr>
+<th>Longest Common Subsequence (LCS)</th>
+<th>Longest Common Subarray</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Subsequence</td>
+<td>Subarray (Contiguous)</td>
+</tr>
+<tr>
+<td>Skipping allowed</td>
+<td>Skipping not allowed</td>
+</tr>
+<tr>
+<td>State = Best answer in prefixes</td>
+<td>State = Answer ending at <code>(i, j)</code></td>
+</tr>
+<tr>
+<td>Match → <code>1 + diagonal</code></td>
+<td>Match → <code>1 + diagonal</code></td>
+</tr>
+<tr>
+<td>Mismatch → <code>max(up, left)</code></td>
+<td>Mismatch → <code>0</code></td>
+</tr>
+<tr>
+<td>Answer = <code>dp[n][m]</code></td>
+<td>Answer = Maximum value in the DP table</td>
+</tr>
+</tbody></table>
+
+
+<hr>
+
+
+<h2>Memory Trick</h2>
+
+
+<pre class="language-text"><code class="language-text">Subsequence
+↓
+Can Skip
+↓
+Use max(up, left)
+
+-------------------------
+
+Subarray / Substring
+↓
+Cannot Skip
+↓
+Mismatch resets to 0
+↓
+Take maximum over all DP cells</code></pre></article></main>
+</body>
+</html>
