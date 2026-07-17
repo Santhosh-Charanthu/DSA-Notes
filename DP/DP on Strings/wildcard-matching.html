@@ -1,0 +1,402 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Wildcard Matching</title>
+<style>
+:root{color-scheme:light;--fg:#0f172a;--muted:#64748b;--border:#e2e8f0;--accent:#0284c7;--accent-soft:#e0f2fe;--card:#ffffff;--code-bg:#0f172a;--code-fg:#e2e8f0;}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{font-family:'Inter',ui-sans-serif,system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;background:linear-gradient(180deg,#e0f2fe 0%,#f0f9ff 60%,#ffffff 100%);color:var(--fg);min-height:100vh;padding:32px 16px;line-height:1.75;-webkit-font-smoothing:antialiased}
+.page{max-width:920px;margin:0 auto}
+.doc{background:var(--card);border-radius:18px;box-shadow:0 20px 60px -20px rgba(2,132,199,.25),0 4px 14px -4px rgba(15,23,42,.08);padding:clamp(24px,5vw,60px);border:1px solid rgba(148,163,184,.2)}
+.title-row{display:flex;flex-wrap:wrap;align-items:center;gap:12px;margin-bottom:8px}
+.badge{display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border-radius:999px;background:var(--accent-soft);color:var(--accent);font-size:13px;font-weight:600;text-decoration:none;border:1px solid rgba(2,132,199,.2)}
+.badge:hover{background:#bae6fd}
+h1,h2,h3,h4,h5,h6{font-weight:700;line-height:1.25;margin:1.8em 0 .6em;letter-spacing:-.01em}
+h1{font-size:2.15rem;border-bottom:1px solid var(--border);padding-bottom:.4em;margin-top:0}
+h2{font-size:1.6rem}
+h3{font-size:1.3rem}
+h4{font-size:1.1rem}
+p{margin:.9em 0}
+a{color:var(--accent);text-decoration:underline;text-underline-offset:3px}
+strong{font-weight:700}
+del{color:var(--muted)}
+ul,ol{margin:.8em 0;padding-left:1.6em}
+li{margin:.25em 0}
+blockquote{margin:1.2em 0;padding:.5em 1.1em;border-left:4px solid var(--accent);background:var(--accent-soft);color:#334155;border-radius:0 .5rem .5rem 0}
+hr{margin:2em 0;border:0;border-top:1px solid var(--border)}
+img{max-width:100%;border-radius:.5rem;margin:1em 0}
+code{font-family:'JetBrains Mono',ui-monospace,'SF Mono',Menlo,Consolas,monospace;font-size:.9em;padding:.15em .4em;background:#f1f5f9;color:#0c4a6e;border-radius:.35rem;border:1px solid var(--border)}
+pre{margin:1.2em 0;padding:1rem 1.1rem;background:var(--code-bg);color:var(--code-fg);border-radius:.7rem;overflow-x:auto;font-size:.9rem;line-height:1.55;border:1px solid #1e293b}
+pre code{background:transparent;border:0;padding:0;color:inherit;font-size:inherit}
+table{width:100%;border-collapse:collapse;margin:1.2em 0;display:block;overflow-x:auto;border:1px solid var(--border);border-radius:.6rem}
+thead{background:var(--accent-soft)}
+th,td{padding:.65em .9em;border-bottom:1px solid var(--border);text-align:left}
+th{font-weight:600}
+tr:last-child td{border-bottom:0}
+.callout{margin:1.5em 0;padding:1rem 1.1rem;border-radius:.8rem;border:1px solid var(--co-b,var(--border));background:var(--co-bg,#f8fafc);box-shadow:0 1px 2px rgba(15,23,42,.04)}
+.callout-title{display:flex;align-items:center;gap:.55rem;font-weight:700;font-size:1rem;margin-bottom:.5rem;color:var(--co-fg,var(--fg))}
+.callout-icon{font-size:1.15rem;line-height:1}
+.callout-body>:first-child{margin-top:0}
+.callout-body>:last-child{margin-bottom:0}
+.callout-note{--co-bg:#eff6ff;--co-b:#bfdbfe;--co-fg:#1e40af}
+.callout-important{--co-bg:#faf5ff;--co-b:#e9d5ff;--co-fg:#6b21a8}
+.callout-warning{--co-bg:#fffbeb;--co-b:#fde68a;--co-fg:#92400e}
+.callout-tip{--co-bg:#ecfdf5;--co-b:#a7f3d0;--co-fg:#065f46}
+.callout-question{--co-bg:#ecfeff;--co-b:#a5f3fc;--co-fg:#155e75}
+.callout-observation{--co-bg:#f0fdfa;--co-b:#99f6e4;--co-fg:#115e59}
+.callout-complexity{--co-bg:#fef2f2;--co-b:#fecaca;--co-fg:#991b1b}
+.callout-summary{--co-bg:#eef2ff;--co-b:#c7d2fe;--co-fg:#3730a3}
+.callout-advantage{--co-bg:#ecfdf5;--co-b:#a7f3d0;--co-fg:#065f46}
+.callout-disadvantage{--co-bg:#fef2f2;--co-b:#fecaca;--co-fg:#991b1b}
+.token.comment,.token.prolog,.token.doctype,.token.cdata{color:#94a3b8}
+.token.punctuation{color:#cbd5e1}
+.token.property,.token.tag,.token.constant,.token.symbol,.token.deleted{color:#fca5a5}
+.token.boolean,.token.number{color:#fdba74}
+.token.selector,.token.attr-name,.token.string,.token.char,.token.builtin,.token.inserted{color:#86efac}
+.token.operator,.token.entity,.token.url,.token.variable{color:#7dd3fc}
+.token.atrule,.token.attr-value,.token.function,.token.class-name{color:#f0abfc}
+.token.keyword{color:#c4b5fd}
+.token.regex,.token.important{color:#fcd34d}
+@media (max-width:640px){body{padding:12px 8px}.doc{padding:20px 16px;border-radius:12px}h1{font-size:1.7rem}}
+@media print{body{background:#fff;padding:0}.doc{box-shadow:none;border:0;padding:0;max-width:none}}
+</style>
+</head>
+<body>
+<main class="page"><article class="doc"><div class="title-row"><h1>Wildcard Matching</h1><a class="badge" href="https://leetcode.com/problems/wildcard-matching/description/" target="_blank" rel="noopener noreferrer">🔗 Problem</a></div>
+
+
+<h2>Pattern</h2>
+
+
+<ul>
+<li><strong>DP on Strings</strong></li>
+<li><strong>Prefix vs Prefix DP</strong></li>
+<li><strong>Decision + Boolean DP (True/False)</strong></li>
+</ul>
+
+
+<hr>
+
+
+<div class="callout callout-observation"><div class="callout-title"><span class="callout-icon">🔍</span><span>Key Observation</span></div><div class="callout-body"><p>The problem asks:</p>
+<blockquote>
+<p><strong>Does the entire input string match the given wildcard pattern?</strong></p>
+</blockquote>
+<p>Wildcard symbols:</p>
+<ul>
+<li><code>?</code> → Matches <strong>exactly one</strong> character.</li>
+<li><code>*</code> → Matches <strong>zero or more</strong> characters.</li>
+</ul>
+<p>Since the answer is only <strong>True</strong> or <strong>False</strong>, this is a <strong>Boolean DP</strong> problem.</p>
+<hr>
+</div></div>
+<div class="callout callout-tip"><div class="callout-title"><span class="callout-icon">🧠</span><span>Intuition</span></div><div class="callout-body"><p>We compare both strings from the end of their prefixes.</p>
+<p>At every step, we ask:</p>
+<blockquote>
+<p><strong>&quot;Can the current characters be matched?&quot;</strong></p>
+</blockquote>
+<hr>
+<h3>Case 1: Characters Match</h3>
+<pre class="language-text"><code class="language-text">s[i-1] == p[j-1]</code></pre><p>The current characters already match.</p>
+<p>Move diagonally.</p>
+<p>Reason:</p>
+<p>Both characters are successfully matched.</p>
+<hr>
+<h3>Case 2: Pattern has &#39;?&#39;</h3>
+<pre class="language-text"><code class="language-text">p[j-1] == '?'</code></pre><p><code>?</code> represents <strong>exactly one character</strong>.</p>
+<p>Consume one character from both strings.</p>
+<p>Move diagonally.</p>
+<p>Reason:</p>
+<p>The current character of the string is matched by <code>?</code>.</p>
+<hr>
+<h3>Case 3: Pattern has &#39;*&#39;</h3>
+<pre class="language-text"><code class="language-text">p[j-1] == '*'</code></pre><p><code>*</code> can behave in two different ways.</p>
+<h4>Option 1: &#39;*&#39; matches zero characters</h4>
+<p>Ignore the <code>*</code>.</p>
+<p>Move left in the pattern.</p>
+<pre class="language-text"><code class="language-text">dp(i, j-1)</code></pre><p>Reason:</p>
+<p>Treat <code>*</code> as an empty string.</p>
+<hr>
+<h4>Option 2: &#39;*&#39; matches one or more characters</h4>
+<p>Consume one character from the string but keep the <code>*</code>.</p>
+<p>Move up.</p>
+<pre class="language-text"><code class="language-text">dp(i-1, j)</code></pre><p>Reason:</p>
+<p>Since <code>*</code> can match multiple characters, it must remain available to match the next character as well.</p>
+<hr>
+<p>If either option succeeds, the strings match.</p>
+<hr>
+<h3>Case 4: Characters Don&#39;t Match</h3>
+<pre class="language-text"><code class="language-text">s[i-1] != p[j-1]</code></pre><p>and the pattern character is neither <code>?</code> nor <code>*</code>.</p>
+<p>Return <strong>False</strong>.</p>
+<p>Reason:</p>
+<p>No wildcard can help match these characters.</p>
+<hr>
+</div></div>
+<h2>State</h2>
+
+
+<pre class="language-text"><code class="language-text">dp(i, j)</code></pre>
+
+<p>Represents:</p>
+
+
+<blockquote>
+<p><strong>Whether the first <code>i</code> characters of the string match the first <code>j</code> characters of the pattern.</strong></p>
+</blockquote>
+
+
+<hr>
+
+
+<h2>Transition</h2>
+
+
+<h3>Characters Match or &#39;?&#39;</h3>
+
+
+<pre class="language-text"><code class="language-text">dp(i, j) = dp(i-1, j-1)</code></pre>
+
+<hr>
+
+
+<h3>&#39;*&#39;</h3>
+
+
+<p>Two choices:</p>
+
+
+<pre class="language-text"><code class="language-text">Ignore '*'
+OR
+Use '*' to match current character</code></pre>
+
+<p>Meaning:</p>
+
+
+<pre class="language-text"><code class="language-text">dp(i, j) =
+dp(i, j-1)
+OR
+dp(i-1, j)</code></pre>
+
+<hr>
+
+
+<h3>Characters Don&#39;t Match</h3>
+
+
+<pre class="language-text"><code class="language-text">dp(i, j) = false</code></pre>
+
+<hr>
+
+
+<h2>Base Cases</h2>
+
+
+<h3>Both string and pattern are exhausted</h3>
+
+
+<pre class="language-text"><code class="language-text">i == 0 &amp;&amp; j == 0</code></pre>
+
+<p>Return <strong>True</strong></p>
+
+
+<p>Reason:</p>
+
+
+<p>Two empty strings always match.</p>
+
+
+<hr>
+
+
+<h3>Pattern exhausted but string remains</h3>
+
+
+<pre class="language-text"><code class="language-text">j == 0 &amp;&amp; i > 0</code></pre>
+
+<p>Return <strong>False</strong></p>
+
+
+<p>Reason:</p>
+
+
+<p>There are still unmatched characters in the string.</p>
+
+
+<hr>
+
+
+<h3>String exhausted but pattern remains</h3>
+
+
+<pre class="language-text"><code class="language-text">i == 0 &amp;&amp; j > 0</code></pre>
+
+<p>Return <strong>True</strong> only if <strong>every remaining character in the pattern is <code>*</code></strong>.</p>
+
+
+<p>Otherwise return <strong>False</strong>.</p>
+
+
+<p>Reason:</p>
+
+
+<p>Only <code>*</code> can represent an empty sequence.</p>
+
+
+<hr>
+
+
+<div class="callout callout-note"><div class="callout-title"><span class="callout-icon">🧾</span><span>Algorithm</span></div><div class="callout-body"><pre class="language-text"><code class="language-text">Compare current characters
+        │
+Match or '?'
+├── Yes → Move diagonally
+│
+└── '*'
+      │
+      ├── Ignore '*'
+      └── Match current character
+             │
+          Either works?
+             │
+           Return True
+      │
+Otherwise → False</code></pre><hr>
+</div></div>
+<h2>Complexity</h2>
+
+
+<ul>
+<li><strong>Time:</strong> O(N × M)</li>
+<li><strong>Space:</strong> O(N × M)</li>
+</ul>
+
+
+<p>Space Optimization:</p>
+
+
+<p>Possible to optimize to <strong>O(M)</strong> since only the previous row is required.</p>
+
+
+<hr>
+
+
+<h2>Recognition Pattern</h2>
+
+
+<p>If the question asks:</p>
+
+
+<ul>
+<li>Wildcard matching</li>
+<li>Pattern contains <code>?</code> and <code>*</code></li>
+<li>Check if an entire string matches a pattern</li>
+</ul>
+
+
+<p>Immediately think:</p>
+
+
+<pre class="language-text"><code class="language-text">DP on Strings
+      ↓
+Prefix vs Prefix DP
+      ↓
+Decision + Boolean DP
+      ↓
+Match?
+├── Character / '?' → Move diagonally
+├── '*' → Zero OR One/More characters
+└── Otherwise → False</code></pre>
+
+<hr>
+
+
+<h2>Interview Intuition</h2>
+
+
+<p>Think of each wildcard as asking:</p>
+
+
+<h3>Normal Character</h3>
+
+
+<blockquote>
+<p>&quot;I can match only the same character.&quot;</p>
+</blockquote>
+
+
+<hr>
+
+
+<h3>&#39;?&#39;</h3>
+
+
+<blockquote>
+<p>&quot;I can match exactly one character.&quot;</p>
+</blockquote>
+
+
+<hr>
+
+
+<h3>&#39;*&#39;</h3>
+
+
+<blockquote>
+<p>&quot;I have two choices.&quot;</p>
+</blockquote>
+
+
+<ul>
+<li>Match <strong>nothing</strong> and disappear.</li>
+<li>Match the current character and stay to potentially match more characters.</li>
+</ul>
+
+
+<p>This is why the recurrence is:</p>
+
+
+<pre class="language-text"><code class="language-text">dp(i, j-1)   // '*' matches zero characters
+
+OR
+
+dp(i-1, j)   // '*' matches one or more characters</code></pre>
+
+<p>Notice that <strong><code>*</code> remains in the pattern</strong> when matching one or more characters because it may continue matching additional characters.</p>
+
+
+<hr>
+
+
+<h2>Difference from Regular Expression Matching</h2>
+
+
+<p>Do <strong>not</strong> confuse this problem with Regular Expression Matching.</p>
+
+
+<h3>Wildcard Matching</h3>
+
+
+<pre class="language-text"><code class="language-text">?  → Exactly one character
+*  → Any sequence of characters</code></pre>
+
+<p><code>*</code> is <strong>independent</strong> and can match any string.</p>
+
+
+<hr>
+
+
+<h3>Regular Expression Matching</h3>
+
+
+<pre class="language-text"><code class="language-text">.  → Exactly one character
+a* → Zero or more occurrences of 'a'</code></pre>
+
+<p>Here, <code>*</code> always belongs to the <strong>previous character</strong>.</p>
+
+
+<p>This difference changes the recurrence for the <code>*</code> case completely.</p>
+</article></main>
+</body>
+</html>
