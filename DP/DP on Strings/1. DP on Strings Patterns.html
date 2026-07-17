@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Document</title>
+<style>
+  /* ── Page shell ── */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html {
+    background: #e8f4fd;
+    min-height: 100%;
+  }
+
+  body {
+    font-family: 'Segoe UI', Arial, Helvetica, sans-serif;
+    font-size: 15px;
+    line-height: 1.85;
+    color: #1a1a2e;
+    background: #e8f4fd;
+    padding: 40px 16px 60px;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ── Centered document card ── */
+  .doc-page {
+    max-width: 860px;
+    margin: 0 auto;
+    background: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.04), 0 12px 40px rgba(14,165,233,0.10);
+    padding: 56px 64px 64px;
+  }
+
+  /* ── Typography ── */
+  p  { margin: 0 0 16px; }
+  a  { color: #0284c7; text-decoration: underline; }
+  strong { font-weight: 700; color: #1e1b4b; }
+  em { font-style: italic; }
+  del { text-decoration: line-through; color: #6b7280; }
+
+  /* ── Headings ── */
+  h1 {
+    font-size: 28px; font-weight: 800; color: #0c1a2e;
+    margin: 0 0 20px;
+    padding-bottom: 12px;
+    border-bottom: 3px solid #0ea5e9;
+    letter-spacing: -0.02em;
+    line-height: 1.3;
+  }
+  h2 {
+    font-size: 21px; font-weight: 700; color: #0c4a6e;
+    margin: 32px 0 12px;
+    padding: 7px 0 7px 14px;
+    border-left: 4px solid #0ea5e9;
+    line-height: 1.4;
+  }
+  h3 {
+    font-size: 17px; font-weight: 700; color: #0369a1;
+    margin: 24px 0 10px;
+    line-height: 1.4;
+  }
+  h4 {
+    font-size: 15px; font-weight: 700; color: #0284c7;
+    margin: 18px 0 8px;
+  }
+  h5, h6 {
+    font-size: 14px; font-weight: 600; color: #0ea5e9;
+    margin: 14px 0 6px;
+  }
+
+  /* ── Lists ── */
+  ul, ol { margin: 8px 0 16px 28px; padding: 0; }
+  li { margin-bottom: 6px; }
+  ul li::marker { color: #0ea5e9; }
+  ol li::marker { color: #0ea5e9; font-weight: 700; }
+
+  /* ── Blockquote ── */
+  blockquote {
+    margin: 20px 0;
+    padding: 14px 20px;
+    border-left: 4px solid #0ea5e9;
+    background: #f0f9ff;
+    border-radius: 0 8px 8px 0;
+    color: #0c4a6e;
+    font-style: italic;
+  }
+
+  /* ── Horizontal rule ── */
+  hr {
+    border: none;
+    border-top: 2px solid #e0f2fe;
+    margin: 28px 0;
+  }
+
+  /* ── Inline code ── */
+  code {
+    background: #f0f9ff;
+    color: #0284c7;
+    padding: 2px 7px;
+    border-radius: 5px;
+    font-family: Consolas, 'Courier New', ui-monospace, monospace;
+    font-size: 0.875em;
+    border: 1px solid #bae6fd;
+  }
+
+  /* ── Code blocks ── */
+  .code-block-wrap {
+    margin: 20px 0;
+    border-radius: 10px;
+    overflow: hidden;
+    border: 1px solid #e0f2fe;
+  }
+  .code-block-header {
+    background: #f0f9ff;
+    padding: 7px 16px;
+    display: flex;
+    align-items: center;
+    border-bottom: 1px solid #e0f2fe;
+  }
+  .code-lang-badge {
+    font-family: Consolas, ui-monospace, monospace;
+    font-size: 11px;
+    color: #0284c7;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+  pre {
+    margin: 0;
+    padding: 18px 20px;
+    background: #fafeff;
+    overflow-x: auto;
+    font-family: Consolas, 'Courier New', ui-monospace, monospace;
+    font-size: 13px;
+    line-height: 1.65;
+  }
+  pre code {
+    background: none;
+    border: none;
+    padding: 0;
+    color: inherit;
+    font-size: inherit;
+    border-radius: 0;
+  }
+
+  /* ── Tables ── */
+  .table-wrap {
+    overflow-x: auto;
+    margin: 20px 0;
+    border-radius: 10px;
+    border: 1px solid #e0f2fe;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+  }
+  thead tr {
+    background: linear-gradient(90deg, #0ea5e9, #38bdf8);
+  }
+  thead th {
+    color: #fff;
+    padding: 11px 16px;
+    text-align: left;
+    font-weight: 600;
+    font-size: 13px;
+    white-space: nowrap;
+  }
+  tbody tr:nth-child(even) { background: #f0f9ff; }
+  tbody tr:hover { background: #e0f2fe; }
+  td {
+    padding: 10px 16px;
+    border-bottom: 1px solid #e0f2fe;
+    color: #1a1a2e;
+  }
+
+  /* ── Callout boxes ── */
+  .callout {
+    margin: 18px 0;
+    padding: 14px 18px;
+    border-radius: 10px;
+    border-left: 4px solid;
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+  }
+  .callout-icon { font-size: 16px; flex-shrink: 0; margin-top: 2px; }
+  .callout-body { flex: 1; font-size: 14px; line-height: 1.7; }
+  .callout-title {
+    font-weight: 700; margin-bottom: 4px;
+    font-size: 12px; text-transform: uppercase; letter-spacing: 0.06em;
+  }
+  .callout.important { background: #f0fdf4; border-color: #22c55e; }
+  .callout.important .callout-title { color: #15803d; }
+  .callout.note      { background: #eff6ff; border-color: #3b82f6; }
+  .callout.note      .callout-title { color: #1d4ed8; }
+  .callout.warning   { background: #fffbeb; border-color: #f59e0b; }
+  .callout.warning   .callout-title { color: #92400e; }
+  .callout.critical  { background: #fef2f2; border-color: #ef4444; }
+  .callout.critical  .callout-title { color: #991b1b; }
+
+  /* ── Section cards ── */
+  .section-card {
+    margin: 20px 0;
+    border-radius: 12px;
+    overflow: hidden;
+    border: 1px solid #e0f2fe;
+  }
+  .section-card-header {
+    padding: 10px 18px;
+    font-weight: 700;
+    font-size: 12px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .section-card-body {
+    padding: 16px 18px;
+    background: #fff;
+  }
+
+  /* ── Print & PDF ── */
+  @media print {
+    html, body { background: #fff; padding: 0; }
+    .doc-page {
+      max-width: 100%;
+      box-shadow: none;
+      border-radius: 0;
+      padding: 20px 32px;
+    }
+    pre, .code-block-wrap, .table-wrap { page-break-inside: avoid; }
+    h1, h2, h3, h4 { page-break-after: avoid; }
+    a { color: #0284c7; }
+  }
+
+  /* ── Responsive ── */
+  @media (max-width: 700px) {
+    .doc-page { padding: 28px 20px 40px; }
+    h1 { font-size: 22px; }
+    h2 { font-size: 18px; }
+  }
+</style>
+</head>
+<body>
+  <div class="doc-page">
+    <h1 style="font-family:'Segoe UI',Arial,sans-serif;font-weight:800;font-size:28px;color:#1e1b4b;margin:0 0 16px;padding-bottom:10px;border-bottom:3px solid #6366f1;letter-spacing:-0.02em;">📘 DP on Strings - Complete Pattern Notes (Interview + Competitive Programming)</h1><blockquote style="margin:16px 0;padding:12px 18px;border-left:4px solid #6366f1;background:#f0f0ff;border-radius:0 8px 8px 0;color:#3730a3;font-style:italic;"><strong style="color:#1e1b4b;">Golden Rule</strong>  Before solving any DP on Strings problem, answer these 5 questions:  1. How many strings are involved? 2. What does my DP state represent? 3. What choices do I have at each state? 4. What should I return? (Max / Min / Count / Boolean) 5. What is the smallest subproblem (Base Case)?</blockquote><hr style="border:none;border-top:2px solid #e5e7eb;margin:24px 0;" /><h1 style="font-family:'Segoe UI',Arial,sans-serif;font-weight:800;font-size:28px;color:#1e1b4b;margin:0 0 16px;padding-bottom:10px;border-bottom:3px solid #6366f1;letter-spacing:-0.02em;">Pattern 1: Prefix vs Prefix DP (Most Important ⭐⭐⭐⭐⭐)</h1><h2 style="font-family:'Segoe UI',Arial,sans-serif;font-weight:800;font-size:21px;color:#312e81;margin:28px 0 10px;padding:6px 0 6px 14px;border-left:4px solid #6366f1;">Recognition</h2><p style="margin:0 0 14px;">Use this pattern whenever the problem compares <strong style="color:#1e1b4b;">two strings</strong>.</p><p style="margin:0 0 14px;">Keywords:</p><ul style="margin:8px 0 14px 24px;padding:0;"><li style="margin-bottom:5px;">Common</li><li style="margin-bottom:5px;">Match</li><li style="margin-bottom:5px;">Convert</li><li style="margin-bottom:5px;">Insert</li><li style="margin-bottom:5px;">Delete</li><li style="margin-bottom:5px;">Replace</li><li style="margin-bottom:5px;">Subsequence</li><li style="margin-bottom:5px;">Transform</li></ul><p style="margin:0 0 14px;">Examples:</p><ul style="margin:8px 0 14px 24px;padding:0;"><li style="margin-bottom:5px;">Longest Common Subsequence</li><li style="margin-bottom:5px;">Edit Distance</li><li style="margin-bottom:5px;">Distinct Subsequences</li><li style="margin-bottom:5px;">Wildcard Matching</li><li style="margin-bottom:5px;">Regular Expression Matching</li><li style="margin-bottom:5px;">Shortest Common Supersequence</li><li style="margin-bottom:5px;">Delete Operation for Two Strings</li><li style="margin-bottom:5px;">Minimum ASCII Delete Sum</li><li style="margin-bottom:5px;">Interleaving String</li></ul><hr style="border:none;border-top:2px solid #e5e7eb;margin:24px 0;" /><h2 style="font-family:'Segoe UI',Arial,sans-serif;font-weight:800;font-size:21px;color:#312e81;margin:28px 0 10px;padding:6px 0 6px 14px;border-left:4px solid #6366f1;">DP State</h2><p style="margin:0 0 14px;">There are two equally valid definitions.</p><h3 style="font-family:'Segoe UI',Arial,sans-serif;font-weight:800;font-size:17px;color:#4338ca;margin:20px 0 8px;font-weight:700;">Version 1 (Prefix)</h3><div class="code-block-wrap" style="margin:16px 0;border-radius:10px;overflow:hidden;border:1px solid #e5e7eb;"><div class="code-block-header" style="background:#f8fafc;padding:7px 14px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #e5e7eb;"><span class="code-lang-badge" style="font-family:ui-monospace,monospace;font-size:11px;color:#6366f1;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;">plaintext</span></div><pre style="margin:0;padding:16px;background:#fafafa;overflow-x:auto;font-family:ui-monospace,monospace;font-size:13px;line-height:1.6;"><code class="language-plaintext" style="font-family:ui-monospace,monospace;font-size:13px;">dp(i, j)
+=
+Answer for
+
+s1[0...i]
+
+s2[0...j]</code></pre></div><p style="margin:0 0 14px;">Recursive direction</p><div class="code-block-wrap" style="margin:16px 0;border-radius:10px;overflow:hidden;border:1px solid #e5e7eb;"><div class="code-block-header" style="background:#f8fafc;padding:7px 14px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #e5e7eb;"><span class="code-lang-badge" style="font-family:ui-monospace,monospace;font-size:11px;color:#6366f1;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;">plaintext</span></div><pre style="margin:0;padding:16px;background:#fafafa;overflow-x:auto;font-family:ui-monospace,monospace;font-size:13px;line-height:1.6;"><code class="language-plaintext" style="font-family:ui-monospace,monospace;font-size:13px;">(i-1, j)
+
+(i, j-1)
+
+(i-1, j-1)</code></pre></div><hr style="border:none;border-top:2px solid #e5e7eb;margin:24px 0;" /><h3 style="font-family:'Segoe UI',Arial,sans-serif;font-weight:800;font-size:17px;color:#4338ca;margin:20px 0 8px;font-weight:700;">Version 2 (Suffix)</h3><div class="code-block-wrap" style="margin:16px 0;border-radius:10px;overflow:hidden;border:1px solid #e5e7eb;"><div class="code-block-header" style="background:#f8fafc;padding:7px 14px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #e5e7eb;"><span class="code-lang-badge" style="font-family:ui-monospace,monospace;font-size:11px;color:#6366f1;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;">plaintext</span></div><pre style="margin:0;padding:16px;background:#fafafa;overflow-x:auto;font-family:ui-monospace,monospace;font-size:13px;line-height:1.6;"><code class="language-plaintext" style="font-family:ui-monospace,monospace;font-size:13px;">dp(i, j)
+=
+Answer for
+
+s1[i...end]
+
+s2[j...end]</code></pre></div><p style="margin:0 0 14px;">Recursive direction</p><div class="code-block-wrap" style="margin:16px 0;border-radius:10px;overflow:hidden;border:1px solid #e5e7eb;"><div class="code-block-header" style="background:#f8fafc;padding:7px 14px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #e5e7eb;"><span class="code-lang-badge" style="font-family:ui-monospace,monospace;font-size:11px;color:#6366f1;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;">plaintext</span></div><pre style="margin:0;padding:16px;background:#fafafa;overflow-x:auto;font-family:ui-monospace,monospace;font-size:13px;line-height:1.6;"><code class="language-plaintext" style="font-family:ui-monospace,monospace;font-size:13px;">(i+1, j)
+
+(i, j+1)
+
+(i+1, j+1)</code></pre></div><p style="margin:0 0 14px;">Both are correct.</p><p style="margin:0 0 14px;"><strong style="color:#1e1b4b;">Never mix the two definitions.</strong></p><hr style="border:none;border-top:2px solid #e5e7eb;margin:24px 0;" /><h2 style="font-family:'Segoe UI',Arial,sans-serif;font-weight:800;font-size:21px;color:#312e81;margin:28px 0 10px;padding:6px 0 6px 14px;border-left:4px solid #6366f1;">How to Think</h2><p style="margin:0 0 14px;">Imagine standing at character</p><div class="code-block-wrap" style="margin:16px 0;border-radius:10px;overflow:hidden;border:1px solid #e5e7eb;"><div class="code-block-header" style="background:#f8fafc;padding:7px 14px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #e5e7eb;"><span class="code-lang-badge" style="font-family:ui-monospace,monospace;font-size:11px;color:#6366f1;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;">plaintext</span></div><pre style="margin:0;padding:16px;background:#fafafa;overflow-x:auto;font-family:ui-monospace,monospace;font-size:13px;line-height:1.6;"><code class="language-plaintext" style="font-family:ui-monospace,monospace;font-size:13px;">s1[i]
+
+s2[j]</code></pre></div><p style="margin:0 0 14px;">Ask</p><div class="code-block-wrap" style="margin:16px 0;border-radius:10px;overflow:hidden;border:1px solid #e5e7eb;"><div class="code-block-header" style="background:#f8fafc;padding:7px 14px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #e5e7eb;"><span class="code-lang-badge" style="font-family:ui-monospace,monospace;font-size:11px;color:#6366f1;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;">plaintext</span></div><pre style="margin:0;padding:16px;background:#fafafa;overflow-x:auto;font-family:ui-monospace,monospace;font-size:13px;line-height:1.6;"><code class="language-plaintext" style="font-family:ui-monospace,monospace;font-size:13px;">Can these two characters work together?</code></pre></div><p style="margin:0 0 14px;">If YES</p><div class="code-block-wrap" style="margin:16px 0;border-radius:10px;overflow:hidden;border:1px solid #e5e7eb;"><div class="code-block-header" style="background:#f8fafc;padding:7px 14px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #e5e7eb;"><span class="code-lang-badge" style="font-family:ui-monospace,monospace;font-size:11px;color:#6366f1;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;">plaintext</span></div><pre style="margin:0;padding:16px;background:#fafafa;overflow-x:auto;font-family:ui-monospace,monospace;font-size:13px;line-height:1.6;"><code class="language-plaintext" style="font-family:ui-monospace,monospace;font-size:13px;">Take both.</code></pre></div><p style="margin:0 0 14px;">If NO</p><div class="code-block-wrap" style="margin:16px 0;border-radius:10px;overflow:hidden;border:1px solid #e5e7eb;"><div class="code-block-header" style="background:#f8fafc;padding:7px 14px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #e5e7eb;"><span class="code-lang-badge" style="font-family:ui-monospace,monospace;font-size:11px;color:#6366f1;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;">plaintext</span></div><pre style="margin:0;padding:16px;background:#fafafa;overflow-x:auto;font-family:ui-monospace,monospace;font-size:13px;line-height:1.6;"><code class="language-plaintext" style="font-family:ui-monospace,monospace;font-size:13px;">One of them has to be ignored.</code></pre></div><p style="margin:0 0 14px;">That becomes your transition.</p><hr style="border:none;border-top:2px solid #e5e7eb;margin:24px 0;" /><h2 style="font-family:'Segoe UI',Arial,sans-serif;font-weight:800;font-size:21px;color:#312e81;margin:28px 0 10px;padding:6px 0 6px 14px;border-left:4px solid #6366f1;">Common Transition Types</h2><h3 style="font-family:'Segoe UI',Arial,sans-serif;font-weight:800;font-size:17px;color:#4338ca;margin:20px 0 8px;font-weight:700;">Match</h3><div class="code-block-wrap" style="margin:16px 0;border-radius:10px;overflow:hidden;border:1px solid #e5e7eb;"><div class="code-block-header" style="background:#f8fafc;padding:7px 14px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #e5e7eb;"><span class="code-lang-badge" style="font-family:ui-monospace,monospace;font-size:11px;color:#6366f1;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;">plaintext</span></div><pre style="margin:0;padding:16px;background:#fafafa;overflow-x:auto;font-family:ui-monospace,monospace;font-size:13px;line-height:1.6;"><code class="language-plaintext" style="font-family:ui-monospace,monospace;font-size:13px;">Take both characters.</code></pre></div><p style="margin:0 0 14px;">Usually</p><div class="code-block-wrap" style="margin:16px 0;border-radius:10px;overflow:hidden;border:1px solid #e5e7eb;"><div class="code-block-header" style="background:#f8fafc;padding:7px 14px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #e5e7eb;"><span class="code-lang-badge" style="font-family:ui-monospace,monospace;font-size:11px;color:#6366f1;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;">plaintext</span></div><pre style="margin:0;padding:16px;background:#fafafa;overflow-x:auto;font-family:ui-monospace,monospace;font-size:13px;line-height:1.6;"><code class="language-plaintext" style="font-family:ui-monospace,monospace;font-size:13px;">1 + next state</code></pre></div><hr style="border:none;border-top:2px solid #e5e7eb;margin:24px 0;" /><h3 style="font-family:'Segoe UI',Arial,sans-serif;font-weight:800;font-size:17px;color:#4338ca;margin:20px 0 8px;font-weight:700;">Mismatch</h3><p style="margin:0 0 14px;">Usually</p><div class="code-block-wrap" style="margin:16px 0;border-radius:10px;overflow:hidden;border:1px solid #e5e7eb;"><div class="code-block-header" style="background:#f8fafc;padding:7px 14px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #e5e7eb;"><span class="code-lang-badge" style="font-family:ui-monospace,monospace;font-size:11px;color:#6366f1;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;">plaintext</span></div><pre style="margin:0;padding:16px;background:#fafafa;overflow-x:auto;font-family:ui-monospace,monospace;font-size:13px;line-height:1.6;"><code class="language-plaintext" style="font-family:ui-monospace,monospace;font-size:13px;">Ignore first character
+
+Ignore second character</code></pre></div><p style="margin:0 0 14px;">Take</p><div class="code-block-wrap" style="margin:16px 0;border-radius:10px;overflow:hidden;border:1px solid #e5e7eb;"><div class="code-block-header" style="background:#f8fafc;padding:7px 14px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #e5e7eb;"><span class="code-lang-badge" style="font-family:ui-monospace,monospace;font-size:11px;color:#6366f1;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;">plaintext</span></div><pre style="margin:0;padding:16px;background:#fafafa;overflow-x:auto;font-family:ui-monospace,monospace;font-size:13px;line-height:1.6;"><code class="language-plaintext" style="font-family:ui-monospace,monospace;font-size:13px;">max()
+
+or
+
+min()
+
+or
+
+sum()
+
+depending on problem.</code></pre></div><hr style="border:none;border-top:2px solid #e5e7eb;margin:24px 0;" /><h2 style="font-family:'Segoe UI',Arial,sans-serif;font-weight:800;font-size:21px;color:#312e81;margin:28px 0 10px;padding:6px 0 6px 14px;border-left:4px solid #6366f1;">Typical Return Types</h2><p style="margin:0 0 14px;">Maximum</p><div class="code-block-wrap" style="margin:16px 0;border-radius:10px;overflow:hidden;border:1px solid #e5e7eb;"><div class="code-block-header" style="background:#f8fafc;padding:7px 14px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #e5e7eb;"><span class="code-lang-badge" style="font-family:ui-monospace,monospace;font-size:11px;color:#6366f1;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;">plaintext</span></div><pre style="margin:0;padding:16px;background:#fafafa;overflow-x:auto;font-family:ui-monospace,monospace;font-size:13px;line-height:1.6;"><code class="language-plaintext" style="font-family:ui-monospace,monospace;font-size:13px;">LCS
+Longest Palindromic Subsequence</code></pre></div><p style="margin:0 0 14px;">Minimum</p><div class="code-block-wrap" style="margin:16px 0;border-radius:10px;overflow:hidden;border:1px solid #e5e7eb;"><div class="code-block-header" style="background:#f8fafc;padding:7px 14px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #e5e7eb;"><span class="code-lang-badge" style="font-family:ui-monospace,monospace;font-size:11px;color:#6366f1;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;">plaintext</span></div><pre style="margin:0;padding:16px;background:#fafafa;overflow-x:auto;font-family:ui-monospace,monospace;font-size:13px;line-height:1.6;"><code class="language-plaintext" style="font-family:ui-monospace,monospace;font-size:13px;">Edit Distance
+Delete Operations</code></pre></div><p style="margin:0 0 14px;">Count</p><div class="code-block-wrap" style="margin:16px 0;border-radius:10px;overflow:hidden;border:1px solid #e5e7eb;"><div class="code-block-header" style="background:#f8fafc;padding:7px 14px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #e5e7eb;"><span class="code-lang-badge" style="font-family:ui-monospace,monospace;font-size:11px;color:#6366f1;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;">plaintext</span></div><pre style="margin:0;padding:16px;background:#fafafa;overflow-x:auto;font-family:ui-monospace,monospace;font-size:13px;line-height:1.6;"><code class="language-plaintext" style="font-family:ui-monospace,monospace;font-size:13px;">Distinct Subsequences</code></pre></div><p style="margin:0 0 14px;">Boolean</p><div class="code-block-wrap" style="margin:16px 0;border-radius:10px;overflow:hidden;border:1px solid #e5e7eb;"><div class="code-block-header" style="background:#f8fafc;padding:7px 14px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #e5e7eb;"><span class="code-lang-badge" style="font-family:ui-monospace,monospace;font-size:11px;color:#6366f1;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;">plaintext</span></div><pre style="margin:0;padding:16px;background:#fafafa;overflow-x:auto;font-family:ui-monospace,monospace;font-size:13px;line-height:1.6;"><code class="language-plaintext" style="font-family:ui-monospace,monospace;font-size:13px;">Wildcard Matching
+Regex Matching
+Interleaving String</code></pre></div><hr style="border:none;border-top:2px solid #e5e7eb;margin:24px 0;" /><h1 style="font-family:'Segoe UI',Arial,sans-serif;font-weight:800;font-size:28px;color:#1e1b4b;margin:0 0 16px;padding-bottom:10px;border-bottom:3px solid #6366f1;letter-spacing:-0.02em;">Pattern 2: Interval / Substring DP ⭐⭐⭐⭐⭐</h1><h2 style="font-family:'Segoe UI',Arial,sans-serif;font-weight:800;font-size:21px;color:#312e81;margin:28px 0 10px;padding:6px 0 6px 14px;border-left:4px solid #6366f1;">Recognition</h2><p style="margin:0 0 14px;">Problem talks about</p><ul style="margin:8px 0 14px 24px;padding:0;"><li style="margin-bottom:5px;">substring</li><li style="margin-bottom:5px;">continuous characters</li><li style="margin-bottom:5px;">partitioning</li><li style="margin-bottom:5px;">palindrome</li><li style="margin-bottom:5px;">left and right pointers</li></ul><p style="margin:0 0 14px;">Examples</p><ul style="margin:8px 0 14px 24px;padding:0;"><li style="margin-bottom:5px;">Longest Palindromic Subsequence</li><li style="margin-bottom:5px;">Palindrome Partitioning</li><li style="margin-bottom:5px;">Minimum Insertions to Make Palindrome</li><li style="margin-bottom:5px;">Burst Balloons</li><li style="margin-bottom:5px;">Strange Printer</li></ul><hr style="border:none;border-top:2px solid #e5e7eb;margin:24px 0;" /><h2 style="font-family:'Segoe UI',Arial,sans-serif;font-weight:800;font-size:21px;color:#312e81;margin:28px 0 10px;padding:6px 0 6px 14px;border-left:4px solid #6366f1;">DP State</h2><div class="code-block-wrap" style="margin:16px 0;border-radius:10px;overflow:hidden;border:1px solid #e5e7eb;"><div class="code-block-header" style="background:#f8fafc;padding:7px 14px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #e5e7eb;"><span class="code-lang-badge" style="font-family:ui-monospace,monospace;font-size:11px;color:#6366f1;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;">plaintext</span></div><pre style="margin:0;padding:16px;background:#fafafa;overflow-x:auto;font-family:ui-monospace,monospace;font-size:13px;line-height:1.6;"><code class="language-plaintext" style="font-family:ui-monospace,monospace;font-size:13px;">dp(i, j)
+
+=
+Answer for
+
+s[i...j]</code></pre></div><p style="margin:0 0 14px;">Notice</p><p style="margin:0 0 14px;">This is NOT two strings.</p><p style="margin:0 0 14px;">It is</p><div class="code-block-wrap" style="margin:16px 0;border-radius:10px;overflow:hidden;border:1px solid #e5e7eb;"><div class="code-block-header" style="background:#f8fafc;padding:7px 14px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #e5e7eb;"><span class="code-lang-badge" style="font-family:ui-monospace,monospace;font-size:11px;color:#6366f1;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;">plaintext</span></div><pre style="margin:0;padding:16px;background:#fafafa;overflow-x:auto;font-family:ui-monospace,monospace;font-size:13px;line-height:1.6;"><code class="language-plaintext" style="font-family:ui-monospace,monospace;font-size:13px;">one string
+
+two boundaries</code></pre></div><hr style="border:none;border-top:2px solid #e5e7eb;margin:24px 0;" /><h2 style="font-family:'Segoe UI',Arial,sans-serif;font-weight:800;font-size:21px;color:#312e81;margin:28px 0 10px;padding:6px 0 6px 14px;border-left:4px solid #6366f1;">Thinking</h2><p style="margin:0 0 14px;">Stand at</p><div class="code-block-wrap" style="margin:16px 0;border-radius:10px;overflow:hidden;border:1px solid #e5e7eb;"><div class="code-block-header" style="background:#f8fafc;padding:7px 14px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #e5e7eb;"><span class="code-lang-badge" style="font-family:ui-monospace,monospace;font-size:11px;color:#6366f1;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;">plaintext</span></div><pre style="margin:0;padding:16px;background:#fafafa;overflow-x:auto;font-family:ui-monospace,monospace;font-size:13px;line-height:1.6;"><code class="language-plaintext" style="font-family:ui-monospace,monospace;font-size:13px;">left
+
+right</code></pre></div><p style="margin:0 0 14px;">Ask</p><div class="code-block-wrap" style="margin:16px 0;border-radius:10px;overflow:hidden;border:1px solid #e5e7eb;"><div class="code-block-header" style="background:#f8fafc;padding:7px 14px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #e5e7eb;"><span class="code-lang-badge" style="font-family:ui-monospace,monospace;font-size:11px;color:#6366f1;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;">plaintext</span></div><pre style="margin:0;padding:16px;background:#fafafa;overflow-x:auto;font-family:ui-monospace,monospace;font-size:13px;line-height:1.6;"><code class="language-plaintext" style="font-family:ui-monospace,monospace;font-size:13px;">Can these two characters work together?</code></pre></div><p style="margin:0 0 14px;">If yes</p><p style="margin:0 0 14px;">Shrink</p><div class="code-block-wrap" style="margin:16px 0;border-radius:10px;overflow:hidden;border:1px solid #e5e7eb;"><div class="code-block-header" style="background:#f8fafc;padding:7px 14px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #e5e7eb;"><span class="code-lang-badge" style="font-family:ui-monospace,monospace;font-size:11px;color:#6366f1;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;">plaintext</span></div><pre style="margin:0;padding:16px;background:#fafafa;overflow-x:auto;font-family:ui-monospace,monospace;font-size:13px;line-height:1.6;"><code class="language-plaintext" style="font-family:ui-monospace,monospace;font-size:13px;">(i+1, j-1)</code></pre></div><p style="margin:0 0 14px;">Otherwise</p><p style="margin:0 0 14px;">Remove one side</p><div class="code-block-wrap" style="margin:16px 0;border-radius:10px;overflow:hidden;border:1px solid #e5e7eb;"><div class="code-block-header" style="background:#f8fafc;padding:7px 14px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #e5e7eb;"><span class="code-lang-badge" style="font-family:ui-monospace,monospace;font-size:11px;color:#6366f1;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;">plaintext</span></div><pre style="margin:0;padding:16px;background:#fafafa;overflow-x:auto;font-family:ui-monospace,monospace;font-size:13px;line-height:1.6;"><code class="language-plaintext" style="font-family:ui-monospace,monospace;font-size:13px;">(i+1, j)
+
+or
+
+(i, j-1)</code></pre></div><p style="margin:0 0 14px;">or</p><p style="margin:0 0 14px;">Split somewhere</p><div class="code-block-wrap" style="margin:16px 0;border-radius:10px;overflow:hidden;border:1px solid #e5e7eb;"><div class="code-block-header" style="background:#f8fafc;padding:7px 14px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #e5e7eb;"><span class="code-lang-badge" style="font-family:ui-monospace,monospace;font-size:11px;color:#6366f1;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;">plaintext</span></div><pre style="margin:0;padding:16px;background:#fafafa;overflow-x:auto;font-family:ui-monospace,monospace;font-size:13px;line-height:1.6;"><code class="language-plaintext" style="font-family:ui-monospace,monospace;font-size:13px;">(i, k)
+
+(k+1, j)</code></pre></div><hr style="border:none;border-top:2px solid #e5e7eb;margin:24px 0;" /><h1 style="font-family:'Segoe UI',Arial,sans-serif;font-weight:800;font-size:28px;color:#1e1b4b;margin:0 0 16px;padding-bottom:10px;border-bottom:3px solid #6366f1;letter-spacing:-0.02em;">Pattern 3: Take / Skip DP ⭐⭐⭐⭐</h1><p style="margin:0 0 14px;">Recognition</p><p style="margin:0 0 14px;">Problem contains</p><div class="code-block-wrap" style="margin:16px 0;border-radius:10px;overflow:hidden;border:1px solid #e5e7eb;"><div class="code-block-header" style="background:#f8fafc;padding:7px 14px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #e5e7eb;"><span class="code-lang-badge" style="font-family:ui-monospace,monospace;font-size:11px;color:#6366f1;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;">plaintext</span></div><pre style="margin:0;padding:16px;background:#fafafa;overflow-x:auto;font-family:ui-monospace,monospace;font-size:13px;line-height:1.6;"><code class="language-plaintext" style="font-family:ui-monospace,monospace;font-size:13px;">Subsequence</code></pre></div><p style="margin:0 0 14px;">Almost always.</p><p style="margin:0 0 14px;">Examples</p><ul style="margin:8px 0 14px 24px;padding:0;"><li style="margin-bottom:5px;">LCS</li><li style="margin-bottom:5px;">Distinct Subsequences</li><li style="margin-bottom:5px;">LIS</li><li style="margin-bottom:5px;">Target Sum (different domain)</li></ul><hr style="border:none;border-top:2px solid #e5e7eb;margin:24px 0;" /><h2 style="font-family:'Segoe UI',Arial,sans-serif;font-weight:800;font-size:21px;color:#312e81;margin:28px 0 10px;padding:6px 0 6px 14px;border-left:4px solid #6366f1;">Thinking</h2><p style="margin:0 0 14px;">At every character</p><div class="code-block-wrap" style="margin:16px 0;border-radius:10px;overflow:hidden;border:1px solid #e5e7eb;"><div class="code-block-header" style="background:#f8fafc;padding:7px 14px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #e5e7eb;"><span class="code-lang-badge" style="font-family:ui-monospace,monospace;font-size:11px;color:#6366f1;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;">plaintext</span></div><pre style="margin:0;padding:16px;background:#fafafa;overflow-x:auto;font-family:ui-monospace,monospace;font-size:13px;line-height:1.6;"><code class="language-plaintext" style="font-family:ui-monospace,monospace;font-size:13px;">Take
+
+or
+
+Skip</code></pre></div><p style="margin:0 0 14px;">Nothing else.</p><hr style="border:none;border-top:2px solid #e5e7eb;margin:24px 0;" /><p style="margin:0 0 14px;">Example</p><p style="margin:0 0 14px;">Distinct Subsequences</p><p style="margin:0 0 14px;">Characters match</p><p style="margin:0 0 14px;">Choices</p><div class="code-block-wrap" style="margin:16px 0;border-radius:10px;overflow:hidden;border:1px solid #e5e7eb;"><div class="code-block-header" style="background:#f8fafc;padding:7px 14px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #e5e7eb;"><span class="code-lang-badge" style="font-family:ui-monospace,monospace;font-size:11px;color:#6366f1;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;">plaintext</span></div><pre style="margin:0;padding:16px;background:#fafafa;overflow-x:auto;font-family:ui-monospace,monospace;font-size:13px;line-height:1.6;"><code class="language-plaintext" style="font-family:ui-monospace,monospace;font-size:13px;">Take it
+
+Skip it</code></pre></div><p style="margin:0 0 14px;">Characters don't match</p><div class="code-block-wrap" style="margin:16px 0;border-radius:10px;overflow:hidden;border:1px solid #e5e7eb;"><div class="code-block-header" style="background:#f8fafc;padding:7px 14px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #e5e7eb;"><span class="code-lang-badge" style="font-family:ui-monospace,monospace;font-size:11px;color:#6366f1;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;">plaintext</span></div><pre style="margin:0;padding:16px;background:#fafafa;overflow-x:auto;font-family:ui-monospace,monospace;font-size:13px;line-height:1.6;"><code class="language-plaintext" style="font-family:ui-monospace,monospace;font-size:13px;">Skip</code></pre></div><hr style="border:none;border-top:2px solid #e5e7eb;margin:24px 0;" /><h1 style="font-family:'Segoe UI',Arial,sans-serif;font-weight:800;font-size:28px;color:#1e1b4b;margin:0 0 16px;padding-bottom:10px;border-bottom:3px solid #6366f1;letter-spacing:-0.02em;">Pattern 4: Matching DP ⭐⭐⭐⭐</h1><p style="margin:0 0 14px;">Recognition</p><p style="margin:0 0 14px;">Problem asks</p><div class="code-block-wrap" style="margin:16px 0;border-radius:10px;overflow:hidden;border:1px solid #e5e7eb;"><div class="code-block-header" style="background:#f8fafc;padding:7px 14px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #e5e7eb;"><span class="code-lang-badge" style="font-family:ui-monospace,monospace;font-size:11px;color:#6366f1;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;">plaintext</span></div><pre style="margin:0;padding:16px;background:#fafafa;overflow-x:auto;font-family:ui-monospace,monospace;font-size:13px;line-height:1.6;"><code class="language-plaintext" style="font-family:ui-monospace,monospace;font-size:13px;">Can two strings match?</code></pre></div><p style="margin:0 0 14px;">Examples</p><ul style="margin:8px 0 14px 24px;padding:0;"><li style="margin-bottom:5px;">Wildcard Matching</li><li style="margin-bottom:5px;">Regex Matching</li><li style="margin-bottom:5px;">Edit Distance</li><li style="margin-bottom:5px;">Interleaving String</li></ul><hr style="border:none;border-top:2px solid #e5e7eb;margin:24px 0;" /><h2 style="font-family:'Segoe UI',Arial,sans-serif;font-weight:800;font-size:21px;color:#312e81;margin:28px 0 10px;padding:6px 0 6px 14px;border-left:4px solid #6366f1;">Thinking</h2><p style="margin:0 0 14px;">Current characters</p><div class="code-block-wrap" style="margin:16px 0;border-radius:10px;overflow:hidden;border:1px solid #e5e7eb;"><div class="code-block-header" style="background:#f8fafc;padding:7px 14px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #e5e7eb;"><span class="code-lang-badge" style="font-family:ui-monospace,monospace;font-size:11px;color:#6366f1;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;">plaintext</span></div><pre style="margin:0;padding:16px;background:#fafafa;overflow-x:auto;font-family:ui-monospace,monospace;font-size:13px;line-height:1.6;"><code class="language-plaintext" style="font-family:ui-monospace,monospace;font-size:13px;">Match?
+
+Don't Match?</code></pre></div><p style="margin:0 0 14px;">Then apply operations.</p><p style="margin:0 0 14px;">Usually</p><div class="code-block-wrap" style="margin:16px 0;border-radius:10px;overflow:hidden;border:1px solid #e5e7eb;"><div class="code-block-header" style="background:#f8fafc;padding:7px 14px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #e5e7eb;"><span class="code-lang-badge" style="font-family:ui-monospace,monospace;font-size:11px;color:#6366f1;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;">plaintext</span></div><pre style="margin:0;padding:16px;background:#fafafa;overflow-x:auto;font-family:ui-monospace,monospace;font-size:13px;line-height:1.6;"><code class="language-plaintext" style="font-family:ui-monospace,monospace;font-size:13px;">Insert
+
+Delete
+
+Replace
+
+Skip</code></pre></div><hr style="border:none;border-top:2px solid #e5e7eb;margin:24px 0;" /><h1 style="font-family:'Segoe UI',Arial,sans-serif;font-weight:800;font-size:28px;color:#1e1b4b;margin:0 0 16px;padding-bottom:10px;border-bottom:3px solid #6366f1;letter-spacing:-0.02em;">Pattern 5: Optimization DP ⭐⭐⭐⭐</h1><p style="margin:0 0 14px;">Recognition</p><p style="margin:0 0 14px;">Problem asks</p><p style="margin:0 0 14px;">Maximum</p><p style="margin:0 0 14px;">Minimum</p><p style="margin:0 0 14px;">Examples</p><ul style="margin:8px 0 14px 24px;padding:0;"><li style="margin-bottom:5px;">LCS</li><li style="margin-bottom:5px;">Edit Distance</li><li style="margin-bottom:5px;">Minimum Insertions</li><li style="margin-bottom:5px;">Delete Operations</li></ul><hr style="border:none;border-top:2px solid #e5e7eb;margin:24px 0;" /><p style="margin:0 0 14px;">Return</p><div class="code-block-wrap" style="margin:16px 0;border-radius:10px;overflow:hidden;border:1px solid #e5e7eb;"><div class="code-block-header" style="background:#f8fafc;padding:7px 14px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #e5e7eb;"><span class="code-lang-badge" style="font-family:ui-monospace,monospace;font-size:11px;color:#6366f1;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;">plaintext</span></div><pre style="margin:0;padding:16px;background:#fafafa;overflow-x:auto;font-family:ui-monospace,monospace;font-size:13px;line-height:1.6;"><code class="language-plaintext" style="font-family:ui-monospace,monospace;font-size:13px;">max()
+
+or
+
+min()</code></pre></div><hr style="border:none;border-top:2px solid #e5e7eb;margin:24px 0;" /><h1 style="font-family:'Segoe UI',Arial,sans-serif;font-weight:800;font-size:28px;color:#1e1b4b;margin:0 0 16px;padding-bottom:10px;border-bottom:3px solid #6366f1;letter-spacing:-0.02em;">Pattern 6: Counting DP ⭐⭐⭐⭐</h1><p style="margin:0 0 14px;">Recognition</p><p style="margin:0 0 14px;">Problem asks</p><div class="code-block-wrap" style="margin:16px 0;border-radius:10px;overflow:hidden;border:1px solid #e5e7eb;"><div class="code-block-header" style="background:#f8fafc;padding:7px 14px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #e5e7eb;"><span class="code-lang-badge" style="font-family:ui-monospace,monospace;font-size:11px;color:#6366f1;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;">plaintext</span></div><pre style="margin:0;padding:16px;background:#fafafa;overflow-x:auto;font-family:ui-monospace,monospace;font-size:13px;line-height:1.6;"><code class="language-plaintext" style="font-family:ui-monospace,monospace;font-size:13px;">How many ways?</code></pre></div><p style="margin:0 0 14px;">Examples</p><ul style="margin:8px 0 14px 24px;padding:0;"><li style="margin-bottom:5px;">Distinct Subsequences</li><li style="margin-bottom:5px;">Decode Ways</li><li style="margin-bottom:5px;">Count Palindromic Subsequences</li></ul><hr style="border:none;border-top:2px solid #e5e7eb;margin:24px 0;" /><p style="margin:0 0 14px;">Transition</p><p style="margin:0 0 14px;">Instead of</p><div class="code-block-wrap" style="margin:16px 0;border-radius:10px;overflow:hidden;border:1px solid #e5e7eb;"><div class="code-block-header" style="background:#f8fafc;padding:7px 14px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #e5e7eb;"><span class="code-lang-badge" style="font-family:ui-monospace,monospace;font-size:11px;color:#6366f1;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;">plaintext</span></div><pre style="margin:0;padding:16px;background:#fafafa;overflow-x:auto;font-family:ui-monospace,monospace;font-size:13px;line-height:1.6;"><code class="language-plaintext" style="font-family:ui-monospace,monospace;font-size:13px;">max()</code></pre></div><p style="margin:0 0 14px;">Use</p><div class="code-block-wrap" style="margin:16px 0;border-radius:10px;overflow:hidden;border:1px solid #e5e7eb;"><div class="code-block-header" style="background:#f8fafc;padding:7px 14px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #e5e7eb;"><span class="code-lang-badge" style="font-family:ui-monospace,monospace;font-size:11px;color:#6366f1;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;">plaintext</span></div><pre style="margin:0;padding:16px;background:#fafafa;overflow-x:auto;font-family:ui-monospace,monospace;font-size:13px;line-height:1.6;"><code class="language-plaintext" style="font-family:ui-monospace,monospace;font-size:13px;">+</code></pre></div><hr style="border:none;border-top:2px solid #e5e7eb;margin:24px 0;" /><h1 style="font-family:'Segoe UI',Arial,sans-serif;font-weight:800;font-size:28px;color:#1e1b4b;margin:0 0 16px;padding-bottom:10px;border-bottom:3px solid #6366f1;letter-spacing:-0.02em;">Pattern 7: Boolean DP ⭐⭐⭐⭐</h1><p style="margin:0 0 14px;">Recognition</p><p style="margin:0 0 14px;">Question asks</p><div class="code-block-wrap" style="margin:16px 0;border-radius:10px;overflow:hidden;border:1px solid #e5e7eb;"><div class="code-block-header" style="background:#f8fafc;padding:7px 14px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #e5e7eb;"><span class="code-lang-badge" style="font-family:ui-monospace,monospace;font-size:11px;color:#6366f1;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;">plaintext</span></div><pre style="margin:0;padding:16px;background:#fafafa;overflow-x:auto;font-family:ui-monospace,monospace;font-size:13px;line-height:1.6;"><code class="language-plaintext" style="font-family:ui-monospace,monospace;font-size:13px;">Possible?
+
+True?
+
+False?
+
+Can we?</code></pre></div><p style="margin:0 0 14px;">Examples</p><ul style="margin:8px 0 14px 24px;padding:0;"><li style="margin-bottom:5px;">Wildcard Matching</li><li style="margin-bottom:5px;">Regex Matching</li><li style="margin-bottom:5px;">Interleaving String</li></ul><hr style="border:none;border-top:2px solid #e5e7eb;margin:24px 0;" /><p style="margin:0 0 14px;">Transition</p><p style="margin:0 0 14px;">Use</p><div class="code-block-wrap" style="margin:16px 0;border-radius:10px;overflow:hidden;border:1px solid #e5e7eb;"><div class="code-block-header" style="background:#f8fafc;padding:7px 14px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #e5e7eb;"><span class="code-lang-badge" style="font-family:ui-monospace,monospace;font-size:11px;color:#6366f1;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;">plaintext</span></div><pre style="margin:0;padding:16px;background:#fafafa;overflow-x:auto;font-family:ui-monospace,monospace;font-size:13px;line-height:1.6;"><code class="language-plaintext" style="font-family:ui-monospace,monospace;font-size:13px;">||
+
+&amp;&amp;</code></pre></div><p style="margin:0 0 14px;">instead of</p><div class="code-block-wrap" style="margin:16px 0;border-radius:10px;overflow:hidden;border:1px solid #e5e7eb;"><div class="code-block-header" style="background:#f8fafc;padding:7px 14px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #e5e7eb;"><span class="code-lang-badge" style="font-family:ui-monospace,monospace;font-size:11px;color:#6366f1;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;">plaintext</span></div><pre style="margin:0;padding:16px;background:#fafafa;overflow-x:auto;font-family:ui-monospace,monospace;font-size:13px;line-height:1.6;"><code class="language-plaintext" style="font-family:ui-monospace,monospace;font-size:13px;">max()
+
+min()</code></pre></div><hr style="border:none;border-top:2px solid #e5e7eb;margin:24px 0;" /><h1 style="font-family:'Segoe UI',Arial,sans-serif;font-weight:800;font-size:28px;color:#1e1b4b;margin:0 0 16px;padding-bottom:10px;border-bottom:3px solid #6366f1;letter-spacing:-0.02em;">Pattern 8: Partition DP ⭐⭐⭐⭐</h1><p style="margin:0 0 14px;">Recognition</p><p style="margin:0 0 14px;">Question says</p><div class="code-block-wrap" style="margin:16px 0;border-radius:10px;overflow:hidden;border:1px solid #e5e7eb;"><div class="code-block-header" style="background:#f8fafc;padding:7px 14px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #e5e7eb;"><span class="code-lang-badge" style="font-family:ui-monospace,monospace;font-size:11px;color:#6366f1;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;">plaintext</span></div><pre style="margin:0;padding:16px;background:#fafafa;overflow-x:auto;font-family:ui-monospace,monospace;font-size:13px;line-height:1.6;"><code class="language-plaintext" style="font-family:ui-monospace,monospace;font-size:13px;">Split
+
+Partition
+
+Divide</code></pre></div><p style="margin:0 0 14px;">Examples</p><ul style="margin:8px 0 14px 24px;padding:0;"><li style="margin-bottom:5px;">Palindrome Partitioning</li><li style="margin-bottom:5px;">Word Break</li><li style="margin-bottom:5px;">Matrix Chain Multiplication (not string)</li></ul><hr style="border:none;border-top:2px solid #e5e7eb;margin:24px 0;" /><p style="margin:0 0 14px;">State</p><div class="code-block-wrap" style="margin:16px 0;border-radius:10px;overflow:hidden;border:1px solid #e5e7eb;"><div class="code-block-header" style="background:#f8fafc;padding:7px 14px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #e5e7eb;"><span class="code-lang-badge" style="font-family:ui-monospace,monospace;font-size:11px;color:#6366f1;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;">plaintext</span></div><pre style="margin:0;padding:16px;background:#fafafa;overflow-x:auto;font-family:ui-monospace,monospace;font-size:13px;line-height:1.6;"><code class="language-plaintext" style="font-family:ui-monospace,monospace;font-size:13px;">dp(i, j)</code></pre></div><p style="margin:0 0 14px;">Transition</p><p style="margin:0 0 14px;">Try every possible split</p><div class="code-block-wrap" style="margin:16px 0;border-radius:10px;overflow:hidden;border:1px solid #e5e7eb;"><div class="code-block-header" style="background:#f8fafc;padding:7px 14px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #e5e7eb;"><span class="code-lang-badge" style="font-family:ui-monospace,monospace;font-size:11px;color:#6366f1;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;">plaintext</span></div><pre style="margin:0;padding:16px;background:#fafafa;overflow-x:auto;font-family:ui-monospace,monospace;font-size:13px;line-height:1.6;"><code class="language-plaintext" style="font-family:ui-monospace,monospace;font-size:13px;">k
+
+between
+
+i and j</code></pre></div><hr style="border:none;border-top:2px solid #e5e7eb;margin:24px 0;" /><h1 style="font-family:'Segoe UI',Arial,sans-serif;font-weight:800;font-size:28px;color:#1e1b4b;margin:0 0 16px;padding-bottom:10px;border-bottom:3px solid #6366f1;letter-spacing:-0.02em;">Pattern 9: Extra State DP ⭐⭐⭐</h1><p style="margin:0 0 14px;">Sometimes</p><p style="margin:0 0 14px;">Two indices are not enough.</p><p style="margin:0 0 14px;">Need</p><div class="code-block-wrap" style="margin:16px 0;border-radius:10px;overflow:hidden;border:1px solid #e5e7eb;"><div class="code-block-header" style="background:#f8fafc;padding:7px 14px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #e5e7eb;"><span class="code-lang-badge" style="font-family:ui-monospace,monospace;font-size:11px;color:#6366f1;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;">plaintext</span></div><pre style="margin:0;padding:16px;background:#fafafa;overflow-x:auto;font-family:ui-monospace,monospace;font-size:13px;line-height:1.6;"><code class="language-plaintext" style="font-family:ui-monospace,monospace;font-size:13px;">dp(i, j, k)</code></pre></div><p style="margin:0 0 14px;">Examples</p><ul style="margin:8px 0 14px 24px;padding:0;"><li style="margin-bottom:5px;">Regex</li><li style="margin-bottom:5px;">Wildcard</li><li style="margin-bottom:5px;">Cherry Pickup</li><li style="margin-bottom:5px;">Remove Boxes</li></ul><hr style="border:none;border-top:2px solid #e5e7eb;margin:24px 0;" /><h1 style="font-family:'Segoe UI',Arial,sans-serif;font-weight:800;font-size:28px;color:#1e1b4b;margin:0 0 16px;padding-bottom:10px;border-bottom:3px solid #6366f1;letter-spacing:-0.02em;">Common State Definitions</h1><h2 style="font-family:'Segoe UI',Arial,sans-serif;font-weight:800;font-size:21px;color:#312e81;margin:28px 0 10px;padding:6px 0 6px 14px;border-left:4px solid #6366f1;">Two Strings</h2><div class="code-block-wrap" style="margin:16px 0;border-radius:10px;overflow:hidden;border:1px solid #e5e7eb;"><div class="code-block-header" style="background:#f8fafc;padding:7px 14px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #e5e7eb;"><span class="code-lang-badge" style="font-family:ui-monospace,monospace;font-size:11px;color:#6366f1;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;">plaintext</span></div><pre style="margin:0;padding:16px;background:#fafafa;overflow-x:auto;font-family:ui-monospace,monospace;font-size:13px;line-height:1.6;"><code class="language-plaintext" style="font-family:ui-monospace,monospace;font-size:13px;">dp(i, j)
+
+=
+Answer for
+
+first i characters
+
+first j characters</code></pre></div><p style="margin:0 0 14px;">or</p><div class="code-block-wrap" style="margin:16px 0;border-radius:10px;overflow:hidden;border:1px solid #e5e7eb;"><div class="code-block-header" style="background:#f8fafc;padding:7px 14px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #e5e7eb;"><span class="code-lang-badge" style="font-family:ui-monospace,monospace;font-size:11px;color:#6366f1;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;">plaintext</span></div><pre style="margin:0;padding:16px;background:#fafafa;overflow-x:auto;font-family:ui-monospace,monospace;font-size:13px;line-height:1.6;"><code class="language-plaintext" style="font-family:ui-monospace,monospace;font-size:13px;">remaining characters</code></pre></div><hr style="border:none;border-top:2px solid #e5e7eb;margin:24px 0;" /><h2 style="font-family:'Segoe UI',Arial,sans-serif;font-weight:800;font-size:21px;color:#312e81;margin:28px 0 10px;padding:6px 0 6px 14px;border-left:4px solid #6366f1;">One String</h2><div class="code-block-wrap" style="margin:16px 0;border-radius:10px;overflow:hidden;border:1px solid #e5e7eb;"><div class="code-block-header" style="background:#f8fafc;padding:7px 14px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #e5e7eb;"><span class="code-lang-badge" style="font-family:ui-monospace,monospace;font-size:11px;color:#6366f1;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;">plaintext</span></div><pre style="margin:0;padding:16px;background:#fafafa;overflow-x:auto;font-family:ui-monospace,monospace;font-size:13px;line-height:1.6;"><code class="language-plaintext" style="font-family:ui-monospace,monospace;font-size:13px;">dp(i, j)
+
+=
+Answer for substring
+
+i...j</code></pre></div><hr style="border:none;border-top:2px solid #e5e7eb;margin:24px 0;" /><h2 style="font-family:'Segoe UI',Arial,sans-serif;font-weight:800;font-size:21px;color:#312e81;margin:28px 0 10px;padding:6px 0 6px 14px;border-left:4px solid #6366f1;">Three State</h2><div class="code-block-wrap" style="margin:16px 0;border-radius:10px;overflow:hidden;border:1px solid #e5e7eb;"><div class="code-block-header" style="background:#f8fafc;padding:7px 14px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #e5e7eb;"><span class="code-lang-badge" style="font-family:ui-monospace,monospace;font-size:11px;color:#6366f1;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;">plaintext</span></div><pre style="margin:0;padding:16px;background:#fafafa;overflow-x:auto;font-family:ui-monospace,monospace;font-size:13px;line-height:1.6;"><code class="language-plaintext" style="font-family:ui-monospace,monospace;font-size:13px;">dp(i, j, extra)</code></pre></div><p style="margin:0 0 14px;">Used when one more variable changes decisions.</p><hr style="border:none;border-top:2px solid #e5e7eb;margin:24px 0;" /><h1 style="font-family:'Segoe UI',Arial,sans-serif;font-weight:800;font-size:28px;color:#1e1b4b;margin:0 0 16px;padding-bottom:10px;border-bottom:3px solid #6366f1;letter-spacing:-0.02em;">Base Case Strategy</h1><p style="margin:0 0 14px;">Never memorize.</p><p style="margin:0 0 14px;">Ask</p><div class="code-block-wrap" style="margin:16px 0;border-radius:10px;overflow:hidden;border:1px solid #e5e7eb;"><div class="code-block-header" style="background:#f8fafc;padding:7px 14px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #e5e7eb;"><span class="code-lang-badge" style="font-family:ui-monospace,monospace;font-size:11px;color:#6366f1;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;">plaintext</span></div><pre style="margin:0;padding:16px;background:#fafafa;overflow-x:auto;font-family:ui-monospace,monospace;font-size:13px;line-height:1.6;"><code class="language-plaintext" style="font-family:ui-monospace,monospace;font-size:13px;">When is there nothing left to solve?</code></pre></div><p style="margin:0 0 14px;">Examples</p><p style="margin:0 0 14px;">Prefix recursion</p><div class="code-block-wrap" style="margin:16px 0;border-radius:10px;overflow:hidden;border:1px solid #e5e7eb;"><div class="code-block-header" style="background:#f8fafc;padding:7px 14px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #e5e7eb;"><span class="code-lang-badge" style="font-family:ui-monospace,monospace;font-size:11px;color:#6366f1;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;">plaintext</span></div><pre style="margin:0;padding:16px;background:#fafafa;overflow-x:auto;font-family:ui-monospace,monospace;font-size:13px;line-height:1.6;"><code class="language-plaintext" style="font-family:ui-monospace,monospace;font-size:13px;">i &lt; 0
+
+or
+
+j &lt; 0</code></pre></div><p style="margin:0 0 14px;">Suffix recursion</p><div class="code-block-wrap" style="margin:16px 0;border-radius:10px;overflow:hidden;border:1px solid #e5e7eb;"><div class="code-block-header" style="background:#f8fafc;padding:7px 14px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #e5e7eb;"><span class="code-lang-badge" style="font-family:ui-monospace,monospace;font-size:11px;color:#6366f1;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;">plaintext</span></div><pre style="margin:0;padding:16px;background:#fafafa;overflow-x:auto;font-family:ui-monospace,monospace;font-size:13px;line-height:1.6;"><code class="language-plaintext" style="font-family:ui-monospace,monospace;font-size:13px;">i == n
+
+or
+
+j == m</code></pre></div><p style="margin:0 0 14px;">Interval DP</p><div class="code-block-wrap" style="margin:16px 0;border-radius:10px;overflow:hidden;border:1px solid #e5e7eb;"><div class="code-block-header" style="background:#f8fafc;padding:7px 14px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #e5e7eb;"><span class="code-lang-badge" style="font-family:ui-monospace,monospace;font-size:11px;color:#6366f1;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;">plaintext</span></div><pre style="margin:0;padding:16px;background:#fafafa;overflow-x:auto;font-family:ui-monospace,monospace;font-size:13px;line-height:1.6;"><code class="language-plaintext" style="font-family:ui-monospace,monospace;font-size:13px;">i &gt; j
+
+or
+
+i == j</code></pre></div><p style="margin:0 0 14px;">depends on problem.</p><hr style="border:none;border-top:2px solid #e5e7eb;margin:24px 0;" /><h1 style="font-family:'Segoe UI',Arial,sans-serif;font-weight:800;font-size:28px;color:#1e1b4b;margin:0 0 16px;padding-bottom:10px;border-bottom:3px solid #6366f1;letter-spacing:-0.02em;">The Five Universal Questions</h1><p style="margin:0 0 14px;">Whenever you see ANY DP on Strings question, answer these first.</p><h2 style="font-family:'Segoe UI',Arial,sans-serif;font-weight:800;font-size:21px;color:#312e81;margin:28px 0 10px;padding:6px 0 6px 14px;border-left:4px solid #6366f1;">Question 1</h2><p style="margin:0 0 14px;">How many strings?</p><div class="code-block-wrap" style="margin:16px 0;border-radius:10px;overflow:hidden;border:1px solid #e5e7eb;"><div class="code-block-header" style="background:#f8fafc;padding:7px 14px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #e5e7eb;"><span class="code-lang-badge" style="font-family:ui-monospace,monospace;font-size:11px;color:#6366f1;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;">plaintext</span></div><pre style="margin:0;padding:16px;background:#fafafa;overflow-x:auto;font-family:ui-monospace,monospace;font-size:13px;line-height:1.6;"><code class="language-plaintext" style="font-family:ui-monospace,monospace;font-size:13px;">One?
+
+Two?
+
+Three?</code></pre></div><hr style="border:none;border-top:2px solid #e5e7eb;margin:24px 0;" /><h2 style="font-family:'Segoe UI',Arial,sans-serif;font-weight:800;font-size:21px;color:#312e81;margin:28px 0 10px;padding:6px 0 6px 14px;border-left:4px solid #6366f1;">Question 2</h2><p style="margin:0 0 14px;">What does</p><div class="code-block-wrap" style="margin:16px 0;border-radius:10px;overflow:hidden;border:1px solid #e5e7eb;"><div class="code-block-header" style="background:#f8fafc;padding:7px 14px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #e5e7eb;"><span class="code-lang-badge" style="font-family:ui-monospace,monospace;font-size:11px;color:#6366f1;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;">plaintext</span></div><pre style="margin:0;padding:16px;background:#fafafa;overflow-x:auto;font-family:ui-monospace,monospace;font-size:13px;line-height:1.6;"><code class="language-plaintext" style="font-family:ui-monospace,monospace;font-size:13px;">dp(i,j)</code></pre></div><p style="margin:0 0 14px;">actually mean?</p><p style="margin:0 0 14px;">Never write code before answering this.</p><hr style="border:none;border-top:2px solid #e5e7eb;margin:24px 0;" /><h2 style="font-family:'Segoe UI',Arial,sans-serif;font-weight:800;font-size:21px;color:#312e81;margin:28px 0 10px;padding:6px 0 6px 14px;border-left:4px solid #6366f1;">Question 3</h2><p style="margin:0 0 14px;">At current state,</p><p style="margin:0 0 14px;">what are my choices?</p><p style="margin:0 0 14px;">Usually</p><div class="code-block-wrap" style="margin:16px 0;border-radius:10px;overflow:hidden;border:1px solid #e5e7eb;"><div class="code-block-header" style="background:#f8fafc;padding:7px 14px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #e5e7eb;"><span class="code-lang-badge" style="font-family:ui-monospace,monospace;font-size:11px;color:#6366f1;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;">plaintext</span></div><pre style="margin:0;padding:16px;background:#fafafa;overflow-x:auto;font-family:ui-monospace,monospace;font-size:13px;line-height:1.6;"><code class="language-plaintext" style="font-family:ui-monospace,monospace;font-size:13px;">Take
+
+Skip
+
+Insert
+
+Delete
+
+Replace
+
+Split</code></pre></div><hr style="border:none;border-top:2px solid #e5e7eb;margin:24px 0;" /><h2 style="font-family:'Segoe UI',Arial,sans-serif;font-weight:800;font-size:21px;color:#312e81;margin:28px 0 10px;padding:6px 0 6px 14px;border-left:4px solid #6366f1;">Question 4</h2><p style="margin:0 0 14px;">If characters match,</p><p style="margin:0 0 14px;">what changes?</p><hr style="border:none;border-top:2px solid #e5e7eb;margin:24px 0;" /><h2 style="font-family:'Segoe UI',Arial,sans-serif;font-weight:800;font-size:21px;color:#312e81;margin:28px 0 10px;padding:6px 0 6px 14px;border-left:4px solid #6366f1;">Question 5</h2><p style="margin:0 0 14px;">What should DP return?</p><div class="code-block-wrap" style="margin:16px 0;border-radius:10px;overflow:hidden;border:1px solid #e5e7eb;"><div class="code-block-header" style="background:#f8fafc;padding:7px 14px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #e5e7eb;"><span class="code-lang-badge" style="font-family:ui-monospace,monospace;font-size:11px;color:#6366f1;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;">plaintext</span></div><pre style="margin:0;padding:16px;background:#fafafa;overflow-x:auto;font-family:ui-monospace,monospace;font-size:13px;line-height:1.6;"><code class="language-plaintext" style="font-family:ui-monospace,monospace;font-size:13px;">Maximum
+
+Minimum
+
+Count
+
+Boolean</code></pre></div><p style="margin:0 0 14px;">This decides whether transition uses</p><div class="code-block-wrap" style="margin:16px 0;border-radius:10px;overflow:hidden;border:1px solid #e5e7eb;"><div class="code-block-header" style="background:#f8fafc;padding:7px 14px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #e5e7eb;"><span class="code-lang-badge" style="font-family:ui-monospace,monospace;font-size:11px;color:#6366f1;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;">plaintext</span></div><pre style="margin:0;padding:16px;background:#fafafa;overflow-x:auto;font-family:ui-monospace,monospace;font-size:13px;line-height:1.6;"><code class="language-plaintext" style="font-family:ui-monospace,monospace;font-size:13px;">max()
+
+min()
+
++
+
+||
+
+&amp;&amp;</code></pre></div><hr style="border:none;border-top:2px solid #e5e7eb;margin:24px 0;" /><h1 style="font-family:'Segoe UI',Arial,sans-serif;font-weight:800;font-size:28px;color:#1e1b4b;margin:0 0 16px;padding-bottom:10px;border-bottom:3px solid #6366f1;letter-spacing:-0.02em;">Problem Classification Cheat Sheet</h1><div class="table-wrap" style="overflow-x:auto;margin:16px 0;border-radius:10px;border:1px solid #e5e7eb;"><table style="width:100%;border-collapse:collapse;font-size:14px;"><thead><tr style="background:linear-gradient(90deg,#6366f1,#4f46e5);"><th style="color:#fff;padding:10px 14px;text-align:left;font-weight:600;font-size:13px;">Problem</th><th style="color:#fff;padding:10px 14px;text-align:left;font-weight:600;font-size:13px;">Pattern</th><th style="color:#fff;padding:10px 14px;text-align:left;font-weight:600;font-size:13px;">Return</th></tr></thead><tbody><tr style=""><td style="padding:9px 14px;border-bottom:1px solid #e5e7eb;color:#1a1a2e;">LCS</td><td style="padding:9px 14px;border-bottom:1px solid #e5e7eb;color:#1a1a2e;">Prefix vs Prefix</td><td style="padding:9px 14px;border-bottom:1px solid #e5e7eb;color:#1a1a2e;">Maximum</td></tr><tr style="background:#f8f8ff;"><td style="padding:9px 14px;border-bottom:1px solid #e5e7eb;color:#1a1a2e;">Longest Palindromic Subsequence</td><td style="padding:9px 14px;border-bottom:1px solid #e5e7eb;color:#1a1a2e;">Interval DP</td><td style="padding:9px 14px;border-bottom:1px solid #e5e7eb;color:#1a1a2e;">Maximum</td></tr><tr style=""><td style="padding:9px 14px;border-bottom:1px solid #e5e7eb;color:#1a1a2e;">Edit Distance</td><td style="padding:9px 14px;border-bottom:1px solid #e5e7eb;color:#1a1a2e;">Prefix vs Prefix</td><td style="padding:9px 14px;border-bottom:1px solid #e5e7eb;color:#1a1a2e;">Minimum</td></tr><tr style="background:#f8f8ff;"><td style="padding:9px 14px;border-bottom:1px solid #e5e7eb;color:#1a1a2e;">Distinct Subsequences</td><td style="padding:9px 14px;border-bottom:1px solid #e5e7eb;color:#1a1a2e;">Prefix vs Prefix</td><td style="padding:9px 14px;border-bottom:1px solid #e5e7eb;color:#1a1a2e;">Count</td></tr><tr style=""><td style="padding:9px 14px;border-bottom:1px solid #e5e7eb;color:#1a1a2e;">Wildcard Matching</td><td style="padding:9px 14px;border-bottom:1px solid #e5e7eb;color:#1a1a2e;">Prefix vs Prefix</td><td style="padding:9px 14px;border-bottom:1px solid #e5e7eb;color:#1a1a2e;">Boolean</td></tr><tr style="background:#f8f8ff;"><td style="padding:9px 14px;border-bottom:1px solid #e5e7eb;color:#1a1a2e;">Regex Matching</td><td style="padding:9px 14px;border-bottom:1px solid #e5e7eb;color:#1a1a2e;">Prefix vs Prefix</td><td style="padding:9px 14px;border-bottom:1px solid #e5e7eb;color:#1a1a2e;">Boolean</td></tr><tr style=""><td style="padding:9px 14px;border-bottom:1px solid #e5e7eb;color:#1a1a2e;">Shortest Common Supersequence</td><td style="padding:9px 14px;border-bottom:1px solid #e5e7eb;color:#1a1a2e;">Prefix vs Prefix</td><td style="padding:9px 14px;border-bottom:1px solid #e5e7eb;color:#1a1a2e;">Minimum + Reconstruction</td></tr><tr style="background:#f8f8ff;"><td style="padding:9px 14px;border-bottom:1px solid #e5e7eb;color:#1a1a2e;">Delete Operation for Two Strings</td><td style="padding:9px 14px;border-bottom:1px solid #e5e7eb;color:#1a1a2e;">Prefix vs Prefix</td><td style="padding:9px 14px;border-bottom:1px solid #e5e7eb;color:#1a1a2e;">Minimum</td></tr><tr style=""><td style="padding:9px 14px;border-bottom:1px solid #e5e7eb;color:#1a1a2e;">Minimum ASCII Delete Sum</td><td style="padding:9px 14px;border-bottom:1px solid #e5e7eb;color:#1a1a2e;">Prefix vs Prefix</td><td style="padding:9px 14px;border-bottom:1px solid #e5e7eb;color:#1a1a2e;">Minimum</td></tr><tr style="background:#f8f8ff;"><td style="padding:9px 14px;border-bottom:1px solid #e5e7eb;color:#1a1a2e;">Interleaving String</td><td style="padding:9px 14px;border-bottom:1px solid #e5e7eb;color:#1a1a2e;">Prefix vs Prefix</td><td style="padding:9px 14px;border-bottom:1px solid #e5e7eb;color:#1a1a2e;">Boolean</td></tr><tr style=""><td style="padding:9px 14px;border-bottom:1px solid #e5e7eb;color:#1a1a2e;">Palindrome Partitioning</td><td style="padding:9px 14px;border-bottom:1px solid #e5e7eb;color:#1a1a2e;">Partition DP</td><td style="padding:9px 14px;border-bottom:1px solid #e5e7eb;color:#1a1a2e;">Minimum</td></tr><tr style="background:#f8f8ff;"><td style="padding:9px 14px;border-bottom:1px solid #e5e7eb;color:#1a1a2e;">Word Break</td><td style="padding:9px 14px;border-bottom:1px solid #e5e7eb;color:#1a1a2e;">Partition DP</td><td style="padding:9px 14px;border-bottom:1px solid #e5e7eb;color:#1a1a2e;">Boolean</td></tr></tbody></table></div><hr style="border:none;border-top:2px solid #e5e7eb;margin:24px 0;" /><h1 style="font-family:'Segoe UI',Arial,sans-serif;font-weight:800;font-size:28px;color:#1e1b4b;margin:0 0 16px;padding-bottom:10px;border-bottom:3px solid #6366f1;letter-spacing:-0.02em;">🔥 Top 1% DP Mindset</h1><p style="margin:0 0 14px;">Never start coding immediately.</p><p style="margin:0 0 14px;">Spend <strong style="color:#1e1b4b;">2–3 minutes</strong> answering:</p><p style="margin:0 0 14px;">✅ What is my state?</p><p style="margin:0 0 14px;">✅ What decision am I making?</p><p style="margin:0 0 14px;">✅ What are all the choices?</p><p style="margin:0 0 14px;">✅ Which choice gives the answer?</p><p style="margin:0 0 14px;">✅ What should I return?</p><p style="margin:0 0 14px;">If you can derive these five answers, you can solve almost every DP-on-Strings problem without memorizing recurrences.</p><hr style="border:none;border-top:2px solid #e5e7eb;margin:24px 0;" /><h1 style="font-family:'Segoe UI',Arial,sans-serif;font-weight:800;font-size:28px;color:#1e1b4b;margin:0 0 16px;padding-bottom:10px;border-bottom:3px solid #6366f1;letter-spacing:-0.02em;">Master Formula</h1><p style="margin:0 0 14px;">Almost every DP-on-Strings problem can be solved using this thinking process:</p><div class="code-block-wrap" style="margin:16px 0;border-radius:10px;overflow:hidden;border:1px solid #e5e7eb;"><div class="code-block-header" style="background:#f8fafc;padding:7px 14px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #e5e7eb;"><span class="code-lang-badge" style="font-family:ui-monospace,monospace;font-size:11px;color:#6366f1;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;">plaintext</span></div><pre style="margin:0;padding:16px;background:#fafafa;overflow-x:auto;font-family:ui-monospace,monospace;font-size:13px;line-height:1.6;"><code class="language-plaintext" style="font-family:ui-monospace,monospace;font-size:13px;">1. Identify the state.
+
+↓
+
+2. Stand at the current state.
+
+↓
+
+3. List every possible choice.
+
+↓
+
+4. Solve each smaller subproblem.
+
+↓
+
+5. Combine the answers using
+
+max()
+
+min()
+
++
+
+||
+
+&amp;&amp;</code></pre></div><p style="margin:0 0 14px;"><strong style="color:#1e1b4b;">Memorize the thinking process, not the recurrence.</strong> That's what separates someone who solves only familiar problems from someone who can derive solutions in interviews and contests.</p>
+  </div>
+</body>
+</html>
