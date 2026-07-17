@@ -1,0 +1,422 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Minimum ASCII Delete Sum for Two Strings</title>
+<style>
+:root{color-scheme:light;--fg:#0f172a;--muted:#64748b;--border:#e2e8f0;--accent:#0284c7;--accent-soft:#e0f2fe;--card:#ffffff;--code-bg:#0f172a;--code-fg:#e2e8f0;}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{font-family:'Inter',ui-sans-serif,system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;background:linear-gradient(180deg,#e0f2fe 0%,#f0f9ff 60%,#ffffff 100%);color:var(--fg);min-height:100vh;padding:32px 16px;line-height:1.75;-webkit-font-smoothing:antialiased}
+.page{max-width:920px;margin:0 auto}
+.doc{background:var(--card);border-radius:18px;box-shadow:0 20px 60px -20px rgba(2,132,199,.25),0 4px 14px -4px rgba(15,23,42,.08);padding:clamp(24px,5vw,60px);border:1px solid rgba(148,163,184,.2)}
+.title-row{display:flex;flex-wrap:wrap;align-items:center;gap:12px;margin-bottom:8px}
+.badge{display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border-radius:999px;background:var(--accent-soft);color:var(--accent);font-size:13px;font-weight:600;text-decoration:none;border:1px solid rgba(2,132,199,.2)}
+.badge:hover{background:#bae6fd}
+h1,h2,h3,h4,h5,h6{font-weight:700;line-height:1.25;margin:1.8em 0 .6em;letter-spacing:-.01em}
+h1{font-size:2.15rem;border-bottom:1px solid var(--border);padding-bottom:.4em;margin-top:0}
+h2{font-size:1.6rem}
+h3{font-size:1.3rem}
+h4{font-size:1.1rem}
+p{margin:.9em 0}
+a{color:var(--accent);text-decoration:underline;text-underline-offset:3px}
+strong{font-weight:700}
+del{color:var(--muted)}
+ul,ol{margin:.8em 0;padding-left:1.6em}
+li{margin:.25em 0}
+blockquote{margin:1.2em 0;padding:.5em 1.1em;border-left:4px solid var(--accent);background:var(--accent-soft);color:#334155;border-radius:0 .5rem .5rem 0}
+hr{margin:2em 0;border:0;border-top:1px solid var(--border)}
+img{max-width:100%;border-radius:.5rem;margin:1em 0}
+code{font-family:'JetBrains Mono',ui-monospace,'SF Mono',Menlo,Consolas,monospace;font-size:.9em;padding:.15em .4em;background:#f1f5f9;color:#0c4a6e;border-radius:.35rem;border:1px solid var(--border)}
+pre{margin:1.2em 0;padding:1rem 1.1rem;background:var(--code-bg);color:var(--code-fg);border-radius:.7rem;overflow-x:auto;font-size:.9rem;line-height:1.55;border:1px solid #1e293b}
+pre code{background:transparent;border:0;padding:0;color:inherit;font-size:inherit}
+table{width:100%;border-collapse:collapse;margin:1.2em 0;display:block;overflow-x:auto;border:1px solid var(--border);border-radius:.6rem}
+thead{background:var(--accent-soft)}
+th,td{padding:.65em .9em;border-bottom:1px solid var(--border);text-align:left}
+th{font-weight:600}
+tr:last-child td{border-bottom:0}
+.callout{margin:1.5em 0;padding:1rem 1.1rem;border-radius:.8rem;border:1px solid var(--co-b,var(--border));background:var(--co-bg,#f8fafc);box-shadow:0 1px 2px rgba(15,23,42,.04)}
+.callout-title{display:flex;align-items:center;gap:.55rem;font-weight:700;font-size:1rem;margin-bottom:.5rem;color:var(--co-fg,var(--fg))}
+.callout-icon{font-size:1.15rem;line-height:1}
+.callout-body>:first-child{margin-top:0}
+.callout-body>:last-child{margin-bottom:0}
+.callout-note{--co-bg:#eff6ff;--co-b:#bfdbfe;--co-fg:#1e40af}
+.callout-important{--co-bg:#faf5ff;--co-b:#e9d5ff;--co-fg:#6b21a8}
+.callout-warning{--co-bg:#fffbeb;--co-b:#fde68a;--co-fg:#92400e}
+.callout-tip{--co-bg:#ecfdf5;--co-b:#a7f3d0;--co-fg:#065f46}
+.callout-question{--co-bg:#ecfeff;--co-b:#a5f3fc;--co-fg:#155e75}
+.callout-observation{--co-bg:#f0fdfa;--co-b:#99f6e4;--co-fg:#115e59}
+.callout-complexity{--co-bg:#fef2f2;--co-b:#fecaca;--co-fg:#991b1b}
+.callout-summary{--co-bg:#eef2ff;--co-b:#c7d2fe;--co-fg:#3730a3}
+.callout-advantage{--co-bg:#ecfdf5;--co-b:#a7f3d0;--co-fg:#065f46}
+.callout-disadvantage{--co-bg:#fef2f2;--co-b:#fecaca;--co-fg:#991b1b}
+.token.comment,.token.prolog,.token.doctype,.token.cdata{color:#94a3b8}
+.token.punctuation{color:#cbd5e1}
+.token.property,.token.tag,.token.constant,.token.symbol,.token.deleted{color:#fca5a5}
+.token.boolean,.token.number{color:#fdba74}
+.token.selector,.token.attr-name,.token.string,.token.char,.token.builtin,.token.inserted{color:#86efac}
+.token.operator,.token.entity,.token.url,.token.variable{color:#7dd3fc}
+.token.atrule,.token.attr-value,.token.function,.token.class-name{color:#f0abfc}
+.token.keyword{color:#c4b5fd}
+.token.regex,.token.important{color:#fcd34d}
+@media (max-width:640px){body{padding:12px 8px}.doc{padding:20px 16px;border-radius:12px}h1{font-size:1.7rem}}
+@media print{body{background:#fff;padding:0}.doc{box-shadow:none;border:0;padding:0;max-width:none}}
+</style>
+</head>
+<body>
+<main class="page"><article class="doc"><div class="title-row"><h1>Minimum ASCII Delete Sum for Two Strings</h1><a class="badge" href="https://leetcode.com/problems/minimum-ascii-delete-sum-for-two-strings/" target="_blank" rel="noopener noreferrer">🔗 Problem</a></div>
+
+
+<h2>Pattern</h2>
+
+
+<ul>
+<li><strong>DP on Strings</strong></li>
+<li><strong>Prefix vs Prefix DP</strong></li>
+<li><strong>Decision + Optimization (Minimum Cost) DP</strong></li>
+<li><strong>Edit Operations DP</strong></li>
+</ul>
+
+
+<hr>
+
+
+<div class="callout callout-observation"><div class="callout-title"><span class="callout-icon">🔍</span><span>Key Observation</span></div><div class="callout-body"><p>The problem asks:</p>
+<blockquote>
+<p><strong>Delete characters from both strings so that they become equal while minimizing the total ASCII value of deleted characters.</strong></p>
+</blockquote>
+<p>Unlike <strong>Delete Operation for Two Strings</strong>, where every deletion costs <strong>1</strong>, here:</p>
+<ul>
+<li>Every character has a <strong>different deletion cost</strong> (its ASCII value).</li>
+</ul>
+<p>So this becomes a <strong>minimum cost deletion</strong> problem.</p>
+<hr>
+</div></div>
+<div class="callout callout-tip"><div class="callout-title"><span class="callout-icon">🧠</span><span>Intuition</span></div><div class="callout-body"><p>Imagine comparing the two strings from the end of their prefixes.</p>
+<p>At every step, ask:</p>
+<blockquote>
+<p><strong>&quot;What is the minimum ASCII deletion cost to make these prefixes equal?&quot;</strong></p>
+</blockquote>
+<p>There are two possibilities:</p>
+<ul>
+<li>The current characters are equal.</li>
+<li>The current characters are different.</li>
+</ul>
+<hr>
+<h3>Case 1: Characters Match</h3>
+<pre class="language-text"><code class="language-text">str1[i-1] == str2[j-1]</code></pre><p>Keep both characters.</p>
+<p>Move diagonally.</p>
+<p>Reason:</p>
+<p>Since both characters are already equal, deleting either of them would only increase the cost unnecessarily.</p>
+<hr>
+<h3>Case 2: Characters Don&#39;t Match</h3>
+<pre class="language-text"><code class="language-text">str1[i-1] != str2[j-1]</code></pre><p>One of the characters must be deleted.</p>
+<p>Two choices:</p>
+<h4>Delete from String 1</h4>
+<pre class="language-text"><code class="language-text">ASCII(str1[i-1]) + dp(i-1, j)</code></pre><hr>
+<h4>Delete from String 2</h4>
+<pre class="language-text"><code class="language-text">ASCII(str2[j-1]) + dp(i, j-1)</code></pre><p>Take the minimum cost.</p>
+<p>Reason:</p>
+<p>Eventually both strings must become equal, so at least one of the mismatching characters must be removed.</p>
+<hr>
+</div></div>
+<h2>State</h2>
+
+
+<pre class="language-text"><code class="language-text">dp(i, j)</code></pre>
+
+<p>Represents:</p>
+
+
+<blockquote>
+<p><strong>Minimum ASCII deletion cost required to make the first <code>i</code> characters of <code>str1</code> and the first <code>j</code> characters of <code>str2</code> equal.</strong></p>
+</blockquote>
+
+
+<hr>
+
+
+<h2>Transition</h2>
+
+
+<h3>Characters Match</h3>
+
+
+<pre class="language-text"><code class="language-text">dp(i, j) = dp(i-1, j-1)</code></pre>
+
+<p>Reason:</p>
+
+
+<p>No deletion is needed.</p>
+
+
+<hr>
+
+
+<h3>Characters Don&#39;t Match</h3>
+
+
+<pre class="language-text"><code class="language-text">dp(i, j) = min(
+    ASCII(str1[i-1]) + dp(i-1, j),
+    ASCII(str2[j-1]) + dp(i, j-1)
+)</code></pre>
+
+<p>Reason:</p>
+
+
+<p>Delete one character and choose the cheaper option.</p>
+
+
+<hr>
+
+
+<h2>Base Cases</h2>
+
+
+<h3>First string is empty</h3>
+
+
+<pre class="language-text"><code class="language-text">i == 0</code></pre>
+
+<p>Delete every remaining character from <code>str2</code>.</p>
+
+
+<pre class="language-text"><code class="language-text">ASCII(str2[0]) + ASCII(str2[1]) + ...</code></pre>
+
+<p>Reason:</p>
+
+
+<p>The only way to make an empty string equal to a non-empty string is to delete every remaining character.</p>
+
+
+<hr>
+
+
+<h3>Second string is empty</h3>
+
+
+<pre class="language-text"><code class="language-text">j == 0</code></pre>
+
+<p>Delete every remaining character from <code>str1</code>.</p>
+
+
+<pre class="language-text"><code class="language-text">ASCII(str1[0]) + ASCII(str1[1]) + ...</code></pre>
+
+<p>Reason:</p>
+
+
+<p>All remaining characters must be removed.</p>
+
+
+<hr>
+
+
+<div class="callout callout-note"><div class="callout-title"><span class="callout-icon">🧾</span><span>Algorithm</span></div><div class="callout-body"><pre class="language-text"><code class="language-text">Compare current characters
+        │
+Characters Equal?
+├── Yes
+│      │
+│      └── Keep both
+│             ↓
+│        Move diagonally
+│
+└── No
+       │
+       ├── Delete from String 1
+       │
+       └── Delete from String 2
+               │
+        Take minimum cost</code></pre><hr>
+</div></div>
+<h2>Complexity</h2>
+
+
+<h3>Memoization</h3>
+
+
+<ul>
+<li><strong>Time:</strong> O(N × M)</li>
+<li><strong>Space:</strong> O(N × M)</li>
+</ul>
+
+
+<h3>Tabulation</h3>
+
+
+<ul>
+<li><strong>Time:</strong> O(N × M)</li>
+<li><strong>Space:</strong> O(N × M)</li>
+</ul>
+
+
+<h3>Space Optimization</h3>
+
+
+<ul>
+<li><strong>Time:</strong> O(N × M)</li>
+<li><strong>Space:</strong> O(M)</li>
+</ul>
+
+
+<hr>
+
+
+<h2>Recognition Pattern</h2>
+
+
+<p>If the problem asks:</p>
+
+
+<ul>
+<li>Make two strings equal</li>
+<li>Minimum deletion cost</li>
+<li>ASCII deletion sum</li>
+<li>Weighted deletion operations</li>
+</ul>
+
+
+<p>Immediately think:</p>
+
+
+<pre class="language-text"><code class="language-text">DP on Strings
+      ↓
+Prefix vs Prefix DP
+      ↓
+Decision + Optimization
+      ↓
+Characters Equal?
+├── Yes → Keep both
+└── No → Delete one character
+            ↓
+       Take minimum cost</code></pre>
+
+<hr>
+
+
+<h2>Interview Intuition</h2>
+
+
+<p>This problem is almost the same as <strong>Delete Operation for Two Strings</strong>, but the cost model is different.</p>
+
+
+<h3>Delete Operation for Two Strings</h3>
+
+
+<p>Every deletion costs:</p>
+
+
+<pre class="language-text"><code class="language-text">1</code></pre>
+
+<p>So we count the number of deletions.</p>
+
+
+<hr>
+
+
+<h3>Minimum ASCII Delete Sum</h3>
+
+
+<p>Every deletion costs:</p>
+
+
+<pre class="language-text"><code class="language-text">ASCII(character)</code></pre>
+
+<p>So instead of minimizing the <strong>number of deletions</strong>, we minimize the <strong>total deletion cost</strong>.</p>
+
+
+<p>The recurrence remains almost identical:</p>
+
+
+<ul>
+<li>Match → Keep both characters.</li>
+<li>Mismatch → Delete from either string and choose the cheaper option.</li>
+</ul>
+
+
+<hr>
+
+
+<h2>Similar Problems</h2>
+
+
+<ul>
+<li><strong>1143. Longest Common Subsequence</strong></li>
+<li><strong>583. Delete Operation for Two Strings</strong></li>
+<li><strong>72. Edit Distance</strong></li>
+<li><strong>1092. Shortest Common Supersequence</strong></li>
+</ul>
+
+
+<hr>
+
+
+<h2>Memory Trick</h2>
+
+
+<pre class="language-text"><code class="language-text">Characters Match
+        ↓
+Keep them
+(No Cost)
+
+-------------------------
+
+Characters Don't Match
+        ↓
+Delete from String 1
+
+        OR
+
+Delete from String 2
+
+        ↓
+Take Minimum ASCII Cost</code></pre>
+
+<hr>
+
+
+<h2>Connection with Delete Operation for Two Strings</h2>
+
+
+<table>
+<thead>
+<tr>
+<th>Delete Operation</th>
+<th>Minimum ASCII Delete Sum</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Cost of deleting a character = 1</td>
+<td>Cost = ASCII value of the character</td>
+</tr>
+<tr>
+<td>Minimize number of deletions</td>
+<td>Minimize total ASCII deletion cost</td>
+</tr>
+<tr>
+<td>Transition: <code>1 + dp(...)</code></td>
+<td>Transition: <code>ASCII(ch) + dp(...)</code></td>
+</tr>
+<tr>
+<td>Same DP pattern</td>
+<td>Same DP pattern</td>
+</tr>
+</tbody></table>
+
+
+<h3>Core Difference</h3>
+
+
+<p>The structure of the DP is <strong>identical</strong>. The only change is the <strong>cost function</strong>:</p>
+
+
+<ul>
+<li>Uniform cost → add <code>1</code></li>
+<li>Weighted cost → add <code>ASCII(character)</code></li>
+</ul>
+
+
+<p>Whenever you see <strong>different costs associated with operations</strong>, think of it as a <strong>weighted version of the original DP problem</strong>.</p>
+</article></main>
+</body>
+</html>
