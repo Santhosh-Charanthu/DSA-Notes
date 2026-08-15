@@ -1,0 +1,431 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>LeetCode 2064 — Minimized Maximum of Products Distributed to Any Store</title>
+<style>
+:root{color-scheme:light;--fg:#0f172a;--muted:#64748b;--border:#e2e8f0;--accent:#0284c7;--accent-soft:#e0f2fe;--card:#ffffff;--code-bg:#0f172a;--code-fg:#e2e8f0;}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{font-family:'Inter',ui-sans-serif,system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;background:linear-gradient(180deg,#e0f2fe 0%,#f0f9ff 60%,#ffffff 100%);color:var(--fg);min-height:100vh;padding:32px 16px;line-height:1.75;-webkit-font-smoothing:antialiased}
+.page{max-width:920px;margin:0 auto}
+.doc{background:var(--card);border-radius:18px;box-shadow:0 20px 60px -20px rgba(2,132,199,.25),0 4px 14px -4px rgba(15,23,42,.08);padding:clamp(24px,5vw,60px);border:1px solid rgba(148,163,184,.2)}
+.title-row{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px 20px;margin:0 0 1.2em;padding-bottom:.5em;border-bottom:1px solid var(--border)}
+.title-row h1{margin:0;padding:0;border:0;flex:1 1 auto;min-width:0}
+.badge{display:inline-flex;align-items:center;gap:6px;padding:7px 14px;border-radius:999px;background:var(--accent-soft);color:var(--accent);font-size:13px;font-weight:600;text-decoration:none;border:1px solid rgba(2,132,199,.2);white-space:nowrap;transition:transform .15s ease,box-shadow .15s ease,background .15s ease;box-shadow:0 1px 2px rgba(2,132,199,.08);flex:0 0 auto;margin-left:auto;margin-right:8px}
+.badge:hover{background:#bae6fd;transform:translateY(-1px);box-shadow:0 6px 16px -6px rgba(2,132,199,.35)}
+h1,h2,h3,h4,h5,h6{font-weight:700;line-height:1.25;margin:1.8em 0 .6em;letter-spacing:-.01em}
+h1{font-size:2.15rem;border-bottom:1px solid var(--border);padding-bottom:.4em;margin-top:0}
+h2{font-size:1.6rem}
+h3{font-size:1.3rem}
+h4{font-size:1.1rem}
+p{margin:.9em 0}
+a{color:var(--accent);text-decoration:underline;text-underline-offset:3px}
+strong{font-weight:700}
+del{color:var(--muted)}
+ul,ol{margin:.8em 0;padding-left:1.6em}
+li{margin:.25em 0}
+blockquote{margin:1.2em 0;padding:.5em 1.1em;border-left:4px solid var(--accent);background:var(--accent-soft);color:#334155;border-radius:0 .5rem .5rem 0}
+hr{margin:2em 0;border:0;border-top:1px solid var(--border)}
+img{max-width:100%;border-radius:.5rem;margin:1em 0}
+code{font-family:'JetBrains Mono',ui-monospace,'SF Mono',Menlo,Consolas,monospace;font-size:.9em;padding:.15em .4em;background:#f1f5f9;color:#0c4a6e;border-radius:.35rem;border:1px solid var(--border)}
+pre{margin:1.2em 0;padding:1rem 1.1rem;background:var(--code-bg);color:var(--code-fg);border-radius:.7rem;overflow-x:auto;font-size:.9rem;line-height:1.55;border:1px solid #1e293b}
+pre code{background:transparent;border:0;padding:0;color:inherit;font-size:inherit}
+table{width:100%;border-collapse:separate;border-spacing:0;margin:1.2em 0;display:table;table-layout:auto;border:1px solid var(--border);border-radius:.6rem;overflow:hidden}
+thead{background:var(--accent-soft)}
+th,td{padding:.65em .9em;border-bottom:1px solid var(--border);text-align:left}
+th{font-weight:600}
+tr:last-child td{border-bottom:0}
+.callout{margin:1.5em 0;padding:1rem 1.1rem;border-radius:.8rem;border:1px solid var(--co-b,var(--border));background:var(--co-bg,#f8fafc);box-shadow:0 1px 2px rgba(15,23,42,.04)}
+.callout-title{display:flex;align-items:center;gap:.55rem;font-weight:700;font-size:1rem;margin-bottom:.5rem;color:var(--co-fg,var(--fg))}
+.callout-icon{font-size:1.15rem;line-height:1}
+.callout-body>:first-child{margin-top:0}
+.callout-body>:last-child{margin-bottom:0}
+.callout-note{--co-bg:#eff6ff;--co-b:#bfdbfe;--co-fg:#1e40af}
+.callout-important{--co-bg:#faf5ff;--co-b:#e9d5ff;--co-fg:#6b21a8}
+.callout-warning{--co-bg:#fffbeb;--co-b:#fde68a;--co-fg:#92400e}
+.callout-tip{--co-bg:#ecfdf5;--co-b:#a7f3d0;--co-fg:#065f46}
+.callout-question{--co-bg:#ecfeff;--co-b:#a5f3fc;--co-fg:#155e75}
+.callout-observation{--co-bg:#f0fdfa;--co-b:#99f6e4;--co-fg:#115e59}
+.callout-complexity{--co-bg:#fef2f2;--co-b:#fecaca;--co-fg:#991b1b}
+.callout-summary{--co-bg:#eef2ff;--co-b:#c7d2fe;--co-fg:#3730a3}
+.callout-advantage{--co-bg:#ecfdf5;--co-b:#a7f3d0;--co-fg:#065f46}
+.callout-disadvantage{--co-bg:#fef2f2;--co-b:#fecaca;--co-fg:#991b1b}
+.callout-blue{--co-bg:#eff6ff;--co-b:#bfdbfe;--co-fg:#1e40af}
+.callout-green{--co-bg:#ecfdf5;--co-b:#a7f3d0;--co-fg:#065f46}
+.callout-red{--co-bg:#fef2f2;--co-b:#fecaca;--co-fg:#991b1b}
+.callout-yellow{--co-bg:#fffbeb;--co-b:#fde68a;--co-fg:#92400e}
+.callout-orange{--co-bg:#fff7ed;--co-b:#fed7aa;--co-fg:#9a3412}
+.callout-purple{--co-bg:#faf5ff;--co-b:#e9d5ff;--co-fg:#6b21a8}
+.callout-gray{--co-bg:#f8fafc;--co-b:#e2e8f0;--co-fg:#475569}
+.token.comment,.token.prolog,.token.doctype,.token.cdata{color:#94a3b8}
+.token.punctuation{color:#cbd5e1}
+.token.property,.token.tag,.token.constant,.token.symbol,.token.deleted{color:#fca5a5}
+.token.boolean,.token.number{color:#fdba74}
+.token.selector,.token.attr-name,.token.string,.token.char,.token.builtin,.token.inserted{color:#86efac}
+.token.operator,.token.entity,.token.url,.token.variable{color:#7dd3fc}
+.token.atrule,.token.attr-value,.token.function,.token.class-name{color:#f0abfc}
+.token.keyword{color:#c4b5fd}
+.token.regex,.token.important{color:#fcd34d}
+@media (max-width:640px){body{padding:12px 8px}.doc{padding:20px 16px;border-radius:12px}h1{font-size:1.7rem}.title-row{align-items:flex-start}.badge{font-size:12px;padding:5px 10px}}
+@media print{body{background:#fff;padding:0}.doc{box-shadow:none;border:0;padding:0;max-width:none}}
+</style>
+</head>
+<body>
+<main class="page"><article class="doc"><div class="title-row"><h1>LeetCode 2064 — Minimized Maximum of Products Distributed to Any Store</h1><a class="badge" href="https://leetcode.com/problems/minimized-maximum-of-products-distributed-to-any-store/" target="_blank" rel="noopener noreferrer">🔗 Problem</a></div>
+
+
+<h2>1. Why this comes under Binary Search on Answers</h2>
+
+
+<p>We need to <strong>minimize the maximum number of products assigned to any store</strong>.</p>
+
+
+<p>We are not searching for an answer inside the <code>quantities</code> array. We are searching over possible values of the <strong>maximum products allowed per store</strong>.</p>
+
+
+<p>For a candidate <code>mid</code>:</p>
+
+
+<ul>
+<li>If we can distribute all products using at most <code>n</code> stores while giving each store at most <code>mid</code> products → <code>mid</code> is possible.</li>
+<li>If we need more than <code>n</code> stores → <code>mid</code> is too small.</li>
+</ul>
+
+
+<p>The feasibility pattern is:</p>
+
+
+<p><code>FALSE FALSE FALSE TRUE TRUE TRUE</code></p>
+
+
+<p>So this is <strong>Binary Search on Answer → Minimize the Maximum → First TRUE</strong>.</p>
+
+
+<hr>
+
+
+<h2>2. What is the answer I&#39;m searching for?</h2>
+
+
+<p>We are searching for the <strong>minimum possible maximum number of products assigned to any store</strong>.</p>
+
+
+<p><code>mid = maximum number of products allowed in one store</code></p>
+
+
+<p>For example, if:</p>
+
+
+<p><code>mid = 5</code></p>
+
+
+<p>then every store can receive at most <code>5</code> products.</p>
+
+
+<hr>
+
+
+<h2>3. What is the smallest possible answer?</h2>
+
+
+<p><code>1</code>.</p>
+
+
+<p>If there are enough stores, every store could receive only one product.</p>
+
+
+<p>Therefore:</p>
+
+
+<p><code>low = 1</code></p>
+
+
+<hr>
+
+
+<h2>4. What is the largest possible answer?</h2>
+
+
+<p><code>max(quantities)</code>.</p>
+
+
+<p>A store never needs to receive more products than the largest quantity of any product type.</p>
+
+
+<p>If:</p>
+
+
+<p><code>quantities = [11, 6, 7]</code></p>
+
+
+<p>then <code>11</code> is the largest possible maximum allocation.</p>
+
+
+<p>Therefore:</p>
+
+
+<p><code>high = max(quantities)</code></p>
+
+
+<p>So:</p>
+
+
+<p><code>1 &lt;= answer &lt;= max(quantities)</code></p>
+
+
+<hr>
+
+
+<h2>5. If I assume <code>mid</code> is the answer</h2>
+
+
+<p>Assume:</p>
+
+
+<p><code>mid = maximum products allowed per store</code></p>
+
+
+<p>For each product type with <code>quantity</code> products, calculate how many stores are required if each store can receive at most <code>mid</code> products.</p>
+
+
+<p>Required stores:</p>
+
+
+<p><code>ceil(quantity / mid)</code></p>
+
+
+<p>Add this for every product type.</p>
+
+
+<h3>If <code>stores &lt;= n</code></h3>
+
+
+<p>We can distribute all products using at most <code>n</code> stores.</p>
+
+
+<p>Therefore <code>mid</code> is possible.</p>
+
+
+<p>But we want to <strong>minimize</strong> the maximum allocation, so try a smaller value:</p>
+
+
+<p><code>high = mid - 1</code></p>
+
+
+<h3>If <code>stores &gt; n</code></h3>
+
+
+<p>We need more stores than we have.</p>
+
+
+<p>Therefore <code>mid</code> is too small, so we need to allow more products per store:</p>
+
+
+<p><code>low = mid + 1</code></p>
+
+
+<p>Therefore:</p>
+
+
+<p><code>possible → LEFT</code></p>
+
+
+<p><code>not possible → RIGHT</code></p>
+
+
+<p>We are looking for the <strong>first TRUE</strong>.</p>
+
+
+<hr>
+
+
+<h2>6. Main idea of <code>isPossible()</code></h2>
+
+
+<p>For a candidate <code>mid</code>:</p>
+
+
+<ol>
+<li><p>Consider each product type independently.</p>
+</li>
+<li><p>Calculate how many stores are required for that quantity if each store can receive at most <code>mid</code> products:</p>
+<p><code>storesRequired = ceil(quantity / mid)</code></p>
+</li>
+<li><p>Add the stores required for all product types.</p>
+</li>
+<li><p>Check whether the total number of stores is at most <code>n</code>.</p>
+</li>
+</ol>
+
+
+<h3>Example</h3>
+
+
+<p><code>quantities = [11, 6, 7]</code></p>
+
+
+<p><code>n = 6</code></p>
+
+
+<p>Suppose:</p>
+
+
+<p><code>mid = 4</code></p>
+
+
+<p>For <code>11</code> products:</p>
+
+
+<p><code>ceil(11/4) = 3 stores</code></p>
+
+
+<p>For <code>6</code> products:</p>
+
+
+<p><code>ceil(6/4) = 2 stores</code></p>
+
+
+<p>For <code>7</code> products:</p>
+
+
+<p><code>ceil(7/4) = 2 stores</code></p>
+
+
+<p>Total:</p>
+
+
+<p><code>3 + 2 + 2 = 7 stores</code></p>
+
+
+<p>But:</p>
+
+
+<p><code>7 &gt; 6</code></p>
+
+
+<p>Therefore:</p>
+
+
+<p><code>mid = 4</code> is impossible.</p>
+
+
+<p>Try a larger value.</p>
+
+
+<hr>
+
+
+<h3>Why do we calculate stores independently?</h3>
+
+
+<p>Each store can receive products of <strong>at most one product type</strong>.</p>
+
+
+<p>Therefore, if a product type has <code>quantity</code> products, we independently determine how many stores are needed for that type.</p>
+
+
+<p>The total number of required stores is simply the sum across all product types.</p>
+
+
+<h3>Key mathematical idea</h3>
+
+
+<p>For every quantity:</p>
+
+
+<p><code>required stores = ceil(quantity / mid)</code></p>
+
+
+<p>Then:</p>
+
+
+<p><code>total stores = Σ ceil(quantity / mid)</code></p>
+
+
+<p>Feasible when:</p>
+
+
+<p><code>total stores &lt;= n</code></p>
+
+
+<hr>
+
+
+<h2>7. Main intuition</h2>
+
+
+<h3>Simple idea</h3>
+
+
+<p>We don&#39;t know the minimum possible maximum allocation, so <strong>guess it as <code>mid</code></strong>.</p>
+
+
+<p>Then ask:</p>
+
+
+<blockquote>
+<p><strong>&quot;If each store can receive at most <code>mid</code> products, how many stores do I need to distribute everything?&quot;</strong></p>
+</blockquote>
+
+
+<p>If the required stores are within <code>n</code>, <code>mid</code> works → try a smaller maximum.</p>
+
+
+<p>If we need more than <code>n</code> stores, <code>mid</code> is too small → allow more products per store.</p>
+
+
+<h3>In one flow</h3>
+
+
+<p><code>Answer = minimum possible maximum products per store</code></p>
+
+
+<p>→ Search in <code>[1, max(quantities)]</code></p>
+
+
+<p>→ Assume <code>mid</code> is the maximum allowed per store</p>
+
+
+<p>→ For every product type calculate <code>ceil(quantity / mid)</code></p>
+
+
+<p>→ Add the required stores</p>
+
+
+<p>→ <code>stores &lt;= n</code> → possible → go LEFT</p>
+
+
+<p>→ <code>stores &gt; n</code> → impossible → go RIGHT</p>
+
+
+<p>→ Return the <strong>first feasible value</strong></p>
+
+
+<h3>Pattern to remember</h3>
+
+
+<blockquote>
+<p><strong>Minimize the Maximum → Binary Search on Answer → First TRUE → if <code>mid</code> works, move LEFT.</strong></p>
+</blockquote>
+
+
+<div class="callout callout-important"><div class="callout-title"><span class="callout-icon">⭐</span><span>Important implementation points</span></div><div class="callout-body"><ul>
+<li><p>A store can receive products from <strong>only one product type</strong>.</p>
+</li>
+<li><p>For each product type, calculate its required number of stores independently.</p>
+</li>
+<li><p><code>low = 1</code> because the maximum allocation can theoretically be 1.</p>
+</li>
+<li><p><code>high = max(quantities)</code> because no store needs more than the largest product quantity.</p>
+</li>
+<li><p>Integer arithmetic can replace <code>Math.ceil()</code>:</p>
+<p><code>(quantity + mid - 1) / mid</code></p>
+</li>
+<li><p>If constraints allow the total store count to become large, use <code>long</code> for <code>stores</code>.</p>
+</li>
+</ul>
+</div></div></article></main>
+</body>
+</html>
