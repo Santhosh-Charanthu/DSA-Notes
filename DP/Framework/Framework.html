@@ -75,6 +75,7 @@ tr:last-child td{border-bottom:0}
 <body>
 <main class="page"><article class="doc"><h3>After reading the question answer these questions according to the question to solve the problem.</h3>
 
+
 <pre class="language-java"><code class="language-java"><span class="token number">1.</span> <span class="token class-name">State</span><span class="token operator">:</span>
 <span class="token function">solve</span><span class="token punctuation">(</span> <span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">.</span> <span class="token punctuation">)</span> <span class="token operator">=</span> <span class="token operator">?</span>
 
@@ -84,6 +85,23 @@ tr:last-child td{border-bottom:0}
 
 <span class="token number">4.</span> <span class="token class-name">Transition</span><span class="token operator">:</span>
 
-<span class="token number">5.</span> <span class="token class-name">Meaning</span> of each recursion call</code></pre></article></main>
+<span class="token number">5.</span> <span class="token class-name">Meaning</span> of each recursion call</code></pre>
+
+<h3>Trick to find Time Complexity:</h3>
+
+
+<h4>Without memoization:</h4>
+
+
+<pre class="language-java"><code class="language-java"><span class="token class-name">Branching</span> factor <span class="token operator">=</span> k
+<span class="token class-name">Depth</span> <span class="token operator">=</span> n
+<span class="token class-name">Time</span> <span class="token operator">=</span> <span class="token class-name">O</span><span class="token punctuation">(</span>k<span class="token operator">^</span>n<span class="token punctuation">)</span></code></pre>
+
+<h4>With memoization:</h4>
+
+
+<pre class="language-java"><code class="language-java"><span class="token class-name">States</span> <span class="token operator">=</span> n
+<span class="token class-name">Work</span> per state <span class="token operator">=</span> k
+<span class="token class-name">Time</span> <span class="token operator">=</span> <span class="token function">0</span><span class="token punctuation">(</span>nk<span class="token punctuation">)</span></code></pre></article></main>
 </body>
 </html>
