@@ -52,6 +52,13 @@ tr:last-child td{border-bottom:0}
 .callout-summary{--co-bg:#eef2ff;--co-b:#c7d2fe;--co-fg:#3730a3}
 .callout-advantage{--co-bg:#ecfdf5;--co-b:#a7f3d0;--co-fg:#065f46}
 .callout-disadvantage{--co-bg:#fef2f2;--co-b:#fecaca;--co-fg:#991b1b}
+.callout-blue{--co-bg:#eff6ff;--co-b:#bfdbfe;--co-fg:#1e40af}
+.callout-green{--co-bg:#ecfdf5;--co-b:#a7f3d0;--co-fg:#065f46}
+.callout-red{--co-bg:#fef2f2;--co-b:#fecaca;--co-fg:#991b1b}
+.callout-yellow{--co-bg:#fffbeb;--co-b:#fde68a;--co-fg:#92400e}
+.callout-orange{--co-bg:#fff7ed;--co-b:#fed7aa;--co-fg:#9a3412}
+.callout-purple{--co-bg:#faf5ff;--co-b:#e9d5ff;--co-fg:#6b21a8}
+.callout-gray{--co-bg:#f8fafc;--co-b:#e2e8f0;--co-fg:#475569}
 .token.comment,.token.prolog,.token.doctype,.token.cdata{color:#94a3b8}
 .token.punctuation{color:#cbd5e1}
 .token.property,.token.tag,.token.constant,.token.symbol,.token.deleted{color:#fca5a5}
@@ -85,8 +92,8 @@ tr:last-child td{border-bottom:0}
 <div class="callout callout-tip"><div class="callout-title"><span class="callout-icon">🧠</span><span>Intuition</span></div><div class="callout-body"><p>We need to split the given string into <strong>valid dictionary words</strong> and return <strong>all possible sentences</strong>.</p>
 <p>Build the current word character by character. Whenever the current substring becomes a valid dictionary word, treat it as one partition and recursively solve the remaining part of the string. Continue exploring all possible partitions until the entire string is processed.</p>
 <p>Backtracking is used to try every valid partition and undo the choice to explore other possibilities.</p>
-<hr>
 </div></div>
+
 <h2>How to Think About Solving It</h2>
 
 
@@ -113,8 +120,8 @@ tr:last-child td{border-bottom:0}
 </ul>
 </li>
 </ul>
-<hr>
 </div></div>
+
 <div class="callout callout-complexity"><div class="callout-title"><span class="callout-icon">💾</span><span>Space Complexity</span></div><div class="callout-body"><ul>
 <li><strong>Space:</strong> <code>O(N)</code><ul>
 <li>Recursion stack + current sentence.</li>
@@ -122,6 +129,7 @@ tr:last-child td{border-bottom:0}
 </ul>
 </li>
 </ul>
-</div></div></article></main>
+<pre><code>
+</code></pre></div></div></article></main>
 </body>
 </html>
