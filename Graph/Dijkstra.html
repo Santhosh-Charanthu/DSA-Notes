@@ -1,8 +1,794 @@
-<!DOCTYPE html>
-<html>
+<!doctype html>
+<html lang="en">
 <head>
-  <title>Dijkstra.html</title>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Dijkstra's Algorithm</title>
+<script>
+(function(){
+  var STORAGE_KEY='bn-theme';
+  var root=document.documentElement;
+  function isDarkOS(){return window.matchMedia&&window.matchMedia('(prefers-color-scheme:dark)').matches}
+  function current(){var s=localStorage.getItem(STORAGE_KEY);return s?s:(isDarkOS()?'dark':'light')}
+  var MOON_SVG='<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9z"/></svg>';
+  var SUN_SVG='<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>';
+  function apply(t){if(t==='dark'){root.classList.add('dark');root.classList.remove('light')}else{root.classList.add('light');root.classList.remove('dark')}var btn=document.getElementById('theme-toggle');if(btn)btn.innerHTML=t==='dark'?SUN_SVG:MOON_SVG}
+  apply(current());
+  window.addEventListener('DOMContentLoaded',function(){
+    apply(current());
+    var btn=document.getElementById('theme-toggle');
+    if(!btn)return;
+    btn.addEventListener('click',function(){
+      var next=current()==='dark'?'light':'dark';
+      localStorage.setItem(STORAGE_KEY,next);
+      apply(next);
+    });
+  });
+})();
+</script>
+<style>
+/* ── Light theme (default) ── */
+:root{
+  --fg:oklch(0.22 0.03 250);--muted-fg:oklch(0.48 0.03 250);--border:oklch(0.9 0.02 230);
+  --accent:oklch(0.62 0.16 240);--accent-soft:color-mix(in oklab,oklch(0.62 0.16 240) 10%,transparent);
+  --card:oklch(1 0 0);--code-bg:oklch(0.19 0.02 250);--code-fg:oklch(0.95 0.01 230);--code-border:oklch(0.3 0.03 250);
+  --inline-code-bg:#f1f5f9;--inline-code-fg:#0c4a6e;
+  --page-bg:linear-gradient(180deg,oklch(0.97 0.03 230) 0%,oklch(0.99 0.01 230) 100%);
+  --doc-shadow:0 20px 60px -20px rgba(2,132,199,.25),0 4px 14px -4px rgba(15,23,42,.08);
+  --thead-bg:color-mix(in oklab,oklch(0.62 0.16 240) 10%,transparent);
+  --toggle-bg:oklch(0.9 0.02 230);--toggle-fg:oklch(0.35 0.04 250);--toggle-hover:oklch(0.84 0.04 230);
+}
+/* ── Dark theme ── */
+.dark{
+  --fg:oklch(0.95 0.01 230);--muted-fg:oklch(0.7 0.03 240);--border:oklch(0.3 0.03 250);
+  --accent:oklch(0.72 0.14 235);--accent-soft:color-mix(in oklab,oklch(0.72 0.14 235) 12%,transparent);
+  --card:oklch(0.21 0.025 250);--code-bg:oklch(0.14 0.02 250);--code-fg:oklch(0.95 0.01 230);--code-border:oklch(0.28 0.03 250);
+  --inline-code-bg:oklch(0.25 0.025 250);--inline-code-fg:oklch(0.95 0.01 230);
+  --page-bg:linear-gradient(180deg,oklch(0.19 0.03 250) 0%,oklch(0.16 0.02 250) 100%);
+  --doc-shadow:0 20px 60px -20px rgba(0,0,0,.5),0 4px 14px -4px rgba(0,0,0,.3);
+  --thead-bg:color-mix(in oklab,oklch(0.72 0.14 235) 10%,transparent);
+  --toggle-bg:oklch(0.28 0.03 250);--toggle-fg:oklch(0.85 0.02 230);--toggle-hover:oklch(0.33 0.04 250);
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{font-family:'Inter',ui-sans-serif,system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;background:var(--page-bg);color:var(--fg);min-height:100vh;padding:32px 16px;line-height:1.75;-webkit-font-smoothing:antialiased;transition:background .2s,color .2s}
+.page{max-width:920px;margin:0 auto}
+.doc{background:var(--card);border-radius:18px;box-shadow:var(--doc-shadow);padding:clamp(24px,5vw,60px);border:1px solid rgba(148,163,184,.2);transition:background .2s,box-shadow .2s}
+/* theme toggle button */
+.theme-toggle{position:fixed;top:16px;right:16px;z-index:100;display:flex;align-items:center;justify-content:center;width:36px;height:36px;border-radius:50%;background:var(--toggle-bg);color:var(--toggle-fg);border:1px solid var(--border);cursor:pointer;font-size:16px;transition:background .15s,transform .15s;box-shadow:0 2px 8px rgba(0,0,0,.12)}
+.theme-toggle:hover{background:var(--toggle-hover);transform:scale(1.08)}
+.title-row{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px 20px;margin:0 0 1.2em;padding-bottom:.5em;border-bottom:1px solid var(--border)}
+.title-row h1{margin:0;padding:0;border:0;flex:1 1 auto;min-width:0}
+.badge{display:inline-flex;align-items:center;gap:6px;padding:7px 14px;border-radius:999px;background:var(--accent-soft);color:var(--accent);font-size:13px;font-weight:600;text-decoration:none;border:1px solid color-mix(in oklab,var(--accent) 30%,transparent);white-space:nowrap;transition:transform .15s ease,box-shadow .15s ease,background .15s ease;box-shadow:0 1px 2px color-mix(in oklab,var(--accent) 15%,transparent);flex:0 0 auto;margin-left:auto;margin-right:8px}
+.badge:hover{background:color-mix(in oklab,var(--accent) 18%,transparent);transform:translateY(-1px);box-shadow:0 6px 16px -6px color-mix(in oklab,var(--accent) 40%,transparent)}
+h1,h2,h3,h4,h5,h6{font-weight:700;line-height:1.25;margin:1.8em 0 .6em;letter-spacing:-.01em;color:var(--fg)}
+h1{font-size:2.15rem;border-bottom:1px solid var(--border);padding-bottom:.4em;margin-top:0}
+h2{font-size:1.6rem}
+h3{font-size:1.3rem}
+h4{font-size:1.1rem}
+p{margin:.9em 0}
+a{color:var(--accent);text-decoration:underline;text-underline-offset:3px}
+strong{font-weight:700}
+del{color:var(--muted-fg)}
+ul,ol{margin:.8em 0;padding-left:1.6em}
+li{margin:.25em 0}
+blockquote{margin:1.2em 0;padding:.5em 1.1em;border-left:4px solid var(--accent);background:var(--accent-soft);color:var(--muted-fg);border-radius:0 .5rem .5rem 0}
+hr{margin:2em 0;border:0;border-top:1px solid var(--border)}
+img{max-width:100%;border-radius:.5rem;margin:1em 0}
+code{font-family:'JetBrains Mono',ui-monospace,'SF Mono',Menlo,Consolas,monospace;font-size:.9em;padding:.15em .4em;background:var(--inline-code-bg);color:var(--inline-code-fg);border-radius:.35rem;border:1px solid var(--border)}
+pre{margin:1.2em 0;padding:1rem 1.1rem;background:var(--code-bg);color:var(--code-fg);border-radius:.7rem;overflow-x:auto;font-size:.9rem;line-height:1.55;border:1px solid var(--code-border)}
+pre code{background:transparent;border:0;padding:0;color:inherit;font-size:inherit}
+table{width:100%;border-collapse:separate;border-spacing:0;margin:1.2em 0;display:table;table-layout:auto;border:1px solid var(--border);border-radius:.6rem;overflow:hidden}
+thead{background:var(--thead-bg)}
+th,td{padding:.65em .9em;border-bottom:1px solid var(--border);text-align:left}
+th{font-weight:600}
+tr:last-child td{border-bottom:0}
+.callout{margin:1.5em 0;padding:1rem 1.1rem;border-radius:.8rem;border:1px solid var(--callout-border,var(--border));background:var(--callout-bg,var(--inline-code-bg));box-shadow:0 1px 2px rgba(15,23,42,.04)}
+.callout-title{display:flex;align-items:center;gap:.55rem;font-weight:700;font-size:1rem;margin-bottom:.5rem;color:var(--callout-fg,var(--fg))}
+.callout-icon{font-size:1.15rem;line-height:1}
+.callout-body>:first-child{margin-top:0}
+.callout-body>:last-child{margin-bottom:0}
+.callout-note{--callout-bg:color-mix(in oklab,oklch(0.65 0.16 240) 10%,transparent);--callout-border:color-mix(in oklab,oklch(0.65 0.16 240) 40%,transparent);--callout-fg:oklch(0.4 0.15 240)}
+.callout-important{--callout-bg:color-mix(in oklab,oklch(0.65 0.22 300) 10%,transparent);--callout-border:color-mix(in oklab,oklch(0.65 0.22 300) 40%,transparent);--callout-fg:oklch(0.42 0.2 300)}
+.callout-warning{--callout-bg:color-mix(in oklab,oklch(0.75 0.17 70) 15%,transparent);--callout-border:color-mix(in oklab,oklch(0.75 0.17 70) 45%,transparent);--callout-fg:oklch(0.45 0.18 60)}
+.callout-tip{--callout-bg:color-mix(in oklab,oklch(0.72 0.18 155) 12%,transparent);--callout-border:color-mix(in oklab,oklch(0.72 0.18 155) 40%,transparent);--callout-fg:oklch(0.4 0.15 155)}
+.callout-question{--callout-bg:color-mix(in oklab,oklch(0.7 0.18 200) 12%,transparent);--callout-border:color-mix(in oklab,oklch(0.7 0.18 200) 40%,transparent);--callout-fg:oklch(0.4 0.15 200)}
+.callout-observation{--callout-bg:color-mix(in oklab,oklch(0.7 0.15 180) 12%,transparent);--callout-border:color-mix(in oklab,oklch(0.7 0.15 180) 40%,transparent);--callout-fg:oklch(0.4 0.13 180)}
+.callout-complexity{--callout-bg:color-mix(in oklab,oklch(0.7 0.15 25) 10%,transparent);--callout-border:color-mix(in oklab,oklch(0.7 0.15 25) 40%,transparent);--callout-fg:oklch(0.44 0.16 25)}
+.callout-summary{--callout-bg:color-mix(in oklab,oklch(0.65 0.14 260) 10%,transparent);--callout-border:color-mix(in oklab,oklch(0.65 0.14 260) 40%,transparent);--callout-fg:oklch(0.4 0.13 260)}
+.callout-advantage{--callout-bg:color-mix(in oklab,oklch(0.72 0.18 155) 12%,transparent);--callout-border:color-mix(in oklab,oklch(0.72 0.18 155) 40%,transparent);--callout-fg:oklch(0.4 0.15 155)}
+.callout-disadvantage{--callout-bg:color-mix(in oklab,oklch(0.7 0.2 20) 10%,transparent);--callout-border:color-mix(in oklab,oklch(0.7 0.2 20) 40%,transparent);--callout-fg:oklch(0.45 0.19 20)}
+.callout-blue{--callout-bg:color-mix(in oklab,oklch(0.65 0.16 240) 10%,transparent);--callout-border:color-mix(in oklab,oklch(0.65 0.16 240) 40%,transparent);--callout-fg:oklch(0.4 0.15 240)}
+.callout-green{--callout-bg:color-mix(in oklab,oklch(0.72 0.18 155) 12%,transparent);--callout-border:color-mix(in oklab,oklch(0.72 0.18 155) 40%,transparent);--callout-fg:oklch(0.4 0.15 155)}
+.callout-red{--callout-bg:color-mix(in oklab,oklch(0.65 0.22 20) 10%,transparent);--callout-border:color-mix(in oklab,oklch(0.65 0.22 20) 45%,transparent);--callout-fg:oklch(0.42 0.2 20)}
+.callout-yellow{--callout-bg:color-mix(in oklab,oklch(0.82 0.18 90) 15%,transparent);--callout-border:color-mix(in oklab,oklch(0.82 0.18 90) 45%,transparent);--callout-fg:oklch(0.45 0.16 80)}
+.callout-orange{--callout-bg:color-mix(in oklab,oklch(0.75 0.18 55) 12%,transparent);--callout-border:color-mix(in oklab,oklch(0.75 0.18 55) 45%,transparent);--callout-fg:oklch(0.44 0.17 45)}
+.callout-purple{--callout-bg:color-mix(in oklab,oklch(0.65 0.2 310) 10%,transparent);--callout-border:color-mix(in oklab,oklch(0.65 0.2 310) 40%,transparent);--callout-fg:oklch(0.42 0.18 310)}
+.callout-gray{--callout-bg:color-mix(in oklab,oklch(0.6 0.01 250) 12%,transparent);--callout-border:color-mix(in oklab,oklch(0.6 0.01 250) 40%,transparent);--callout-fg:oklch(0.4 0.02 250)}
+.callout-teal{--callout-bg:color-mix(in oklab,oklch(0.68 0.15 185) 11%,transparent);--callout-border:color-mix(in oklab,oklch(0.68 0.15 185) 40%,transparent);--callout-fg:oklch(0.38 0.13 185)}
+.callout-cyan{--callout-bg:color-mix(in oklab,oklch(0.72 0.14 210) 12%,transparent);--callout-border:color-mix(in oklab,oklch(0.72 0.14 210) 42%,transparent);--callout-fg:oklch(0.38 0.12 210)}
+.callout-pink{--callout-bg:color-mix(in oklab,oklch(0.72 0.2 350) 10%,transparent);--callout-border:color-mix(in oklab,oklch(0.72 0.2 350) 40%,transparent);--callout-fg:oklch(0.42 0.18 350)}
+.callout-rose{--callout-bg:color-mix(in oklab,oklch(0.67 0.22 5) 10%,transparent);--callout-border:color-mix(in oklab,oklch(0.67 0.22 5) 42%,transparent);--callout-fg:oklch(0.42 0.2 5)}
+.callout-indigo{--callout-bg:color-mix(in oklab,oklch(0.6 0.2 270) 10%,transparent);--callout-border:color-mix(in oklab,oklch(0.6 0.2 270) 40%,transparent);--callout-fg:oklch(0.4 0.18 270)}
+.callout-violet{--callout-bg:color-mix(in oklab,oklch(0.63 0.22 295) 10%,transparent);--callout-border:color-mix(in oklab,oklch(0.63 0.22 295) 40%,transparent);--callout-fg:oklch(0.4 0.2 295)}
+.callout-lime{--callout-bg:color-mix(in oklab,oklch(0.78 0.2 125) 12%,transparent);--callout-border:color-mix(in oklab,oklch(0.78 0.2 125) 42%,transparent);--callout-fg:oklch(0.4 0.16 125)}
+.callout-amber{--callout-bg:color-mix(in oklab,oklch(0.8 0.18 75) 14%,transparent);--callout-border:color-mix(in oklab,oklch(0.8 0.18 75) 45%,transparent);--callout-fg:oklch(0.44 0.16 65)}
+.callout-sky{--callout-bg:color-mix(in oklab,oklch(0.7 0.15 225) 11%,transparent);--callout-border:color-mix(in oklab,oklch(0.7 0.15 225) 40%,transparent);--callout-fg:oklch(0.38 0.14 225)}
+.callout-slate{--callout-bg:color-mix(in oklab,oklch(0.58 0.04 240) 12%,transparent);--callout-border:color-mix(in oklab,oklch(0.58 0.04 240) 40%,transparent);--callout-fg:oklch(0.36 0.04 240)}
+.callout-peach{--callout-bg:color-mix(in oklab,#ffb5b5 18%,transparent);--callout-border:color-mix(in oklab,#ffb5b5 50%,transparent);--callout-fg:oklch(0.42 0.14 15)}
+/* Prism token colors — same palette as the live preview */
+.token.comment,.token.prolog,.token.doctype,.token.cdata{color:oklch(0.65 0.03 250)}
+.token.punctuation{color:oklch(0.85 0.02 230)}
+.token.property,.token.tag,.token.constant,.token.symbol,.token.deleted{color:oklch(0.75 0.18 20)}
+.token.boolean,.token.number{color:oklch(0.8 0.15 70)}
+.token.selector,.token.attr-name,.token.string,.token.char,.token.builtin,.token.inserted{color:oklch(0.82 0.15 155)}
+.token.operator,.token.entity,.token.url,.token.variable{color:oklch(0.85 0.1 200)}
+.token.atrule,.token.attr-value,.token.function,.token.class-name{color:oklch(0.82 0.16 300)}
+.token.keyword{color:oklch(0.78 0.17 260)}
+.token.regex,.token.important{color:oklch(0.8 0.18 60)}
+@media (prefers-color-scheme:dark){:root:not(.light){--fg:oklch(0.95 0.01 230);--muted-fg:oklch(0.7 0.03 240);--border:oklch(0.3 0.03 250);--accent:oklch(0.72 0.14 235);--accent-soft:color-mix(in oklab,oklch(0.72 0.14 235) 12%,transparent);--card:oklch(0.21 0.025 250);--code-bg:oklch(0.14 0.02 250);--code-fg:oklch(0.95 0.01 230);--code-border:oklch(0.28 0.03 250);--inline-code-bg:oklch(0.25 0.025 250);--inline-code-fg:oklch(0.95 0.01 230);--page-bg:linear-gradient(180deg,oklch(0.19 0.03 250) 0%,oklch(0.16 0.02 250) 100%);--doc-shadow:0 20px 60px -20px rgba(0,0,0,.5),0 4px 14px -4px rgba(0,0,0,.3);--thead-bg:color-mix(in oklab,oklch(0.72 0.14 235) 10%,transparent);--toggle-bg:oklch(0.28 0.03 250);--toggle-fg:oklch(0.85 0.02 230);--toggle-hover:oklch(0.33 0.04 250)}}
+@media (max-width:640px){body{padding:12px 8px}.doc{padding:20px 16px;border-radius:12px}h1{font-size:1.7rem}.title-row{align-items:flex-start}.badge{font-size:12px;padding:5px 10px}}
+@media print{body{background:#fff;padding:0}.doc{box-shadow:none;border:0;padding:0;max-width:none}.theme-toggle{display:none}}
+</style>
 </head>
 <body>
+<button id="theme-toggle" class="theme-toggle" aria-label="Toggle dark/light mode"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9z"/></svg></button>
+<main class="page"><article class="doc">
+<h1>Dijkstra&#39;s Algorithm</h1>
+
+
+<h2>1. What is Dijkstra&#39;s Algorithm?</h2>
+
+
+<p>Dijkstra&#39;s algorithm is a <strong>Single Source Shortest Path (SSSP)</strong> algorithm used to find the shortest distance from a source vertex to all other vertices in a <strong>weighted graph</strong>.</p>
+
+
+<div class="callout callout-important"><div class="callout-title"><span class="callout-icon">⭐</span><span>Important condition</span></div><div class="callout-body"><p>Dijkstra works when:</p>
+<blockquote>
+<p><strong>All edge weights are non-negative (<code>weight &gt;= 0</code>).</strong></p>
+</blockquote>
+<p>It can handle:</p>
+<ul>
+<li>Positive weights ✅</li>
+<li>Zero-weight edges ✅</li>
+<li>Cycles ✅</li>
+<li>Directed graphs ✅</li>
+<li>Undirected graphs ✅</li>
+</ul>
+<p>It does <strong>not</strong> work correctly with negative-weight edges.</p>
+</div></div>
+
+<h1>2. Core Intuition ⭐</h1>
+
+
+<p>Dijkstra follows a <strong>greedy approach</strong>.</p>
+
+
+<p>At every step:</p>
+
+
+<blockquote>
+<p><strong>Pick the unprocessed vertex having the smallest known distance from the source, and finalize its distance.</strong></p>
+</blockquote>
+
+
+<p>Why is it safe to finalize?</p>
+
+
+<p>Because all edge weights are non-negative.</p>
+
+
+<p>Suppose we already have:</p>
+
+
+<pre class="language-text"><code class="language-text">dist[B] = 5
+dist[C] = 8</code></pre>
+
+<p>We choose <code>B</code> because it has the smaller distance.</p>
+
+
+<p>Any path going through <code>C</code> would have:</p>
+
+
+<pre class="language-text"><code class="language-text">dist[C] + edge weight
+≥ 8 + 0
+≥ 8</code></pre>
+
+<p>So it cannot later produce a distance smaller than <code>5</code>.</p>
+
+
+<p>Therefore:</p>
+
+
+<blockquote>
+<p><strong>With non-negative edges, once we select the minimum-distance unprocessed vertex, its distance is final.</strong></p>
+</blockquote>
+
+
+<p>This is the fundamental reason Dijkstra works.</p>
+
+
+<hr>
+
+
+<h1>3. Relaxation</h1>
+
+
+<p>For every edge:</p>
+
+
+<pre class="language-text"><code class="language-text">u ----wt----> v</code></pre>
+
+<p>check:</p>
+
+
+<pre class="language-text"><code class="language-text">dist[u] + wt &lt; dist[v]</code></pre>
+
+<p>If true:</p>
+
+
+<pre class="language-text"><code class="language-text">dist[v] = dist[u] + wt</code></pre>
+
+<p>In code:</p>
+
+
+<pre class="language-java"><code class="language-java"><span class="token keyword">if</span> <span class="token punctuation">(</span>dist<span class="token punctuation">[</span>u<span class="token punctuation">]</span> <span class="token operator">+</span> wt <span class="token operator">&lt;</span> dist<span class="token punctuation">[</span>v<span class="token punctuation">]</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    dist<span class="token punctuation">[</span>v<span class="token punctuation">]</span> <span class="token operator">=</span> dist<span class="token punctuation">[</span>u<span class="token punctuation">]</span> <span class="token operator">+</span> wt<span class="token punctuation">;</span>
+<span class="token punctuation">}</span></code></pre>
+
+<h3>Meaning</h3>
+
+
+<blockquote>
+<p><strong>&quot;Can I reach <code>v</code> more cheaply by going through <code>u</code>?&quot;</strong></p>
+</blockquote>
+
+
+<hr>
+
+
+<h1>4. Why Does Dijkstra Fail With Negative Edges?</h1>
+
+
+<p>Dijkstra assumes:</p>
+
+
+<blockquote>
+<p><strong>Once a vertex is finalized, its distance can never become smaller.</strong></p>
+</blockquote>
+
+
+<p>This assumption depends on:</p>
+
+
+<pre class="language-text"><code class="language-text">edge weight >= 0</code></pre>
+
+<p>Consider:</p>
+
+
+<pre class="language-text"><code class="language-text">A → B = 2
+A → C = 5
+C → B = -10</code></pre>
+
+<p>Starting from <code>A</code>:</p>
+
+
+<pre class="language-text"><code class="language-text">dist[B] = 2
+dist[C] = 5</code></pre>
+
+<p>Dijkstra chooses <code>B</code> because:</p>
+
+
+<pre class="language-text"><code class="language-text">2 &lt; 5</code></pre>
+
+<p>and finalizes:</p>
+
+
+<pre class="language-text"><code class="language-text">dist[B] = 2</code></pre>
+
+<p>But later:</p>
+
+
+<pre class="language-text"><code class="language-text">A → C → B
+= 5 + (-10)
+= -5</code></pre>
+
+<p>The actual shortest distance is <code>-5</code>.</p>
+
+
+<p>Dijkstra has already finalized <code>B</code>, so its greedy decision becomes incorrect.</p>
+
+
+<h3>Therefore:</h3>
+
+
+<blockquote>
+<p><strong>Dijkstra cannot safely handle negative-weight edges.</strong></p>
+</blockquote>
+
+
+<hr>
+
+
+<h1>5. Why Does Dijkstra Handle Cycles?</h1>
+
+
+<p>A common misconception is:</p>
+
+
+<blockquote>
+<p>&quot;Dijkstra doesn&#39;t work on cyclic graphs.&quot;</p>
+</blockquote>
+
+
+<p>❌ False.</p>
+
+
+<p>Dijkstra can handle cycles.</p>
+
+
+<p>For example:</p>
+
+
+<pre class="language-text"><code class="language-text">A → B → C
+↑       ↓
+└───────┘</code></pre>
+
+<p>As long as all edge weights are non-negative, Dijkstra works.</p>
+
+
+<p>The <code>visited</code>/finalized mechanism prevents repeatedly processing a vertex unnecessarily.</p>
+
+
+<div class="callout callout-important"><div class="callout-title"><span class="callout-icon">⭐</span><span>Important</span></div><div class="callout-body"><pre class="language-text"><code class="language-text">Cycle ≠ Problem
+Negative weight = Problem</code></pre></div></div>
+
+<h1>6. Algorithm Using Priority Queue</h1>
+
+
+<p>The efficient implementation uses a <strong>Min Priority Queue</strong>.</p>
+
+
+<p>We store:</p>
+
+
+<pre class="language-text"><code class="language-text">(distance, node)</code></pre>
+
+<p>The priority queue always gives us the node with the <strong>smallest distance</strong>.</p>
+
+
+<h3>Basic structure</h3>
+
+
+<pre class="language-java"><code class="language-java"><span class="token keyword">int</span><span class="token punctuation">[</span><span class="token punctuation">]</span> dist <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token keyword">int</span><span class="token punctuation">[</span><span class="token class-name">V</span><span class="token punctuation">]</span><span class="token punctuation">;</span>
+
+<span class="token class-name">Arrays</span><span class="token punctuation">.</span><span class="token function">fill</span><span class="token punctuation">(</span>dist<span class="token punctuation">,</span> <span class="token class-name">Integer</span><span class="token punctuation">.</span><span class="token constant">MAX_VALUE</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+dist<span class="token punctuation">[</span>src<span class="token punctuation">]</span> <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span>
+
+<span class="token class-name">PriorityQueue</span><span class="token generics"><span class="token punctuation">&lt;</span><span class="token class-name">Pair</span><span class="token punctuation">></span></span> pq <span class="token operator">=</span>
+    <span class="token keyword">new</span> <span class="token class-name">PriorityQueue</span><span class="token generics"><span class="token punctuation">&lt;</span><span class="token punctuation">></span></span><span class="token punctuation">(</span><span class="token punctuation">(</span>a<span class="token punctuation">,</span> b<span class="token punctuation">)</span> <span class="token operator">-></span> a<span class="token punctuation">.</span>distance <span class="token operator">-</span> b<span class="token punctuation">.</span>distance<span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+pq<span class="token punctuation">.</span><span class="token function">add</span><span class="token punctuation">(</span><span class="token keyword">new</span> <span class="token class-name">Pair</span><span class="token punctuation">(</span><span class="token number">0</span><span class="token punctuation">,</span> src<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+<span class="token keyword">while</span> <span class="token punctuation">(</span><span class="token operator">!</span>pq<span class="token punctuation">.</span><span class="token function">isEmpty</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+
+    <span class="token class-name">Pair</span> current <span class="token operator">=</span> pq<span class="token punctuation">.</span><span class="token function">poll</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+    <span class="token keyword">int</span> distance <span class="token operator">=</span> current<span class="token punctuation">.</span>distance<span class="token punctuation">;</span>
+    <span class="token keyword">int</span> node <span class="token operator">=</span> current<span class="token punctuation">.</span>node<span class="token punctuation">;</span>
+
+    <span class="token keyword">if</span> <span class="token punctuation">(</span>distance <span class="token operator">></span> dist<span class="token punctuation">[</span>node<span class="token punctuation">]</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token keyword">continue</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+
+    <span class="token keyword">for</span> <span class="token punctuation">(</span><span class="token class-name">Edge</span> edge <span class="token operator">:</span> adj<span class="token punctuation">[</span>node<span class="token punctuation">]</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+
+        <span class="token keyword">int</span> next <span class="token operator">=</span> edge<span class="token punctuation">.</span><span class="token keyword">to</span><span class="token punctuation">;</span>
+        <span class="token keyword">int</span> wt <span class="token operator">=</span> edge<span class="token punctuation">.</span>weight<span class="token punctuation">;</span>
+
+        <span class="token keyword">if</span> <span class="token punctuation">(</span>distance <span class="token operator">+</span> wt <span class="token operator">&lt;</span> dist<span class="token punctuation">[</span>next<span class="token punctuation">]</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+
+            dist<span class="token punctuation">[</span>next<span class="token punctuation">]</span> <span class="token operator">=</span> distance <span class="token operator">+</span> wt<span class="token punctuation">;</span>
+
+            pq<span class="token punctuation">.</span><span class="token function">add</span><span class="token punctuation">(</span><span class="token keyword">new</span> <span class="token class-name">Pair</span><span class="token punctuation">(</span>
+                dist<span class="token punctuation">[</span>next<span class="token punctuation">]</span><span class="token punctuation">,</span>
+                next
+            <span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token punctuation">}</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span></code></pre>
+
+<hr>
+
+
+<h1>7. Why Use a Priority Queue?</h1>
+
+
+<p>Suppose we have:</p>
+
+
+<pre class="language-text"><code class="language-text">A → B = 10
+A → C = 3
+A → D = 7</code></pre>
+
+<p>After processing A:</p>
+
+
+<pre class="language-text"><code class="language-text">B = 10
+C = 3
+D = 7</code></pre>
+
+<p>We want to process:</p>
+
+
+<pre class="language-text"><code class="language-text">C</code></pre>
+
+<p>first because:</p>
+
+
+<pre class="language-text"><code class="language-text">3 &lt; 7 &lt; 10</code></pre>
+
+<p>A <strong>Min Heap / Priority Queue</strong> efficiently gives us the smallest distance.</p>
+
+
+<p>Without a priority queue, we may need to scan all vertices to find the minimum.</p>
+
+
+<p>With a priority queue:</p>
+
+
+<pre class="language-text"><code class="language-text">poll() → O(log V)
+add()  → O(log V)</code></pre>
+
+<hr>
+
+
+<h1>8. Important Optimization in Java</h1>
+
+
+<p>You may see:</p>
+
+
+<pre class="language-java"><code class="language-java"><span class="token keyword">if</span> <span class="token punctuation">(</span>distance <span class="token operator">></span> dist<span class="token punctuation">[</span>node<span class="token punctuation">]</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token keyword">continue</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span></code></pre>
+
+<p>Why?</p>
+
+
+<p>Suppose we previously inserted:</p>
+
+
+<pre class="language-text"><code class="language-text">(node = B, distance = 10)</code></pre>
+
+<p>Later we discover:</p>
+
+
+<pre class="language-text"><code class="language-text">(node = B, distance = 5)</code></pre>
+
+<p>The priority queue can contain <strong>both</strong>:</p>
+
+
+<pre class="language-text"><code class="language-text">(5, B)
+(10, B)</code></pre>
+
+<p>We process <code>(5, B)</code> first.</p>
+
+
+<p>When <code>(10, B)</code> eventually comes out:</p>
+
+
+<pre class="language-text"><code class="language-text">distance = 10
+dist[B] = 5</code></pre>
+
+<p>Therefore:</p>
+
+
+<pre class="language-text"><code class="language-text">10 > 5</code></pre>
+
+<p>So we skip it.</p>
+
+
+<p>This is called <strong>stale entry checking</strong>.</p>
+
+
+<hr>
+
+
+<h1>9. Time Complexity</h1>
+
+
+<p>For adjacency list + binary min heap:</p>
+
+
+<pre class="language-text"><code class="language-text">O((V + E) log V)</code></pre>
+
+<p>Often written as:</p>
+
+
+<pre class="language-text"><code class="language-text">O(E log V)</code></pre>
+
+<p>for a connected graph where <code>E &gt;= V-1</code>.</p>
+
+
+<h3>Why?</h3>
+
+
+<p>We process vertices and edges, and priority queue operations cost <code>log V</code>.</p>
+
+
+<p>Conceptually:</p>
+
+
+<pre class="language-text"><code class="language-text">Graph traversal
+        ↓
+V + E
+        ↓
+Priority Queue
+        ↓
+log V</code></pre>
+
+<p>Therefore:</p>
+
+
+<pre class="language-text"><code class="language-text">O((V + E) log V)</code></pre>
+
+<hr>
+
+
+<h1>10. Space Complexity</h1>
+
+
+<p>We maintain:</p>
+
+
+<pre class="language-text"><code class="language-text">dist[]          → O(V)
+priority queue  → O(V) to O(E), depending on implementation/state
+adjacency list  → O(V + E)</code></pre>
+
+<p>For the complete graph representation:</p>
+
+
+<pre class="language-text"><code class="language-text">O(V + E)</code></pre>
+
+<p>Additional algorithmic space excluding the graph itself is typically:</p>
+
+
+<pre class="language-text"><code class="language-text">O(V)</code></pre>
+
+<hr>
+
+
+<h1>11. Dijkstra vs Bellman-Ford</h1>
+
+
+<table>
+<thead>
+<tr>
+<th>Feature</th>
+<th>Dijkstra</th>
+<th>Bellman-Ford</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Positive edges</td>
+<td>✅</td>
+<td>✅</td>
+</tr>
+<tr>
+<td>Zero edges</td>
+<td>✅</td>
+<td>✅</td>
+</tr>
+<tr>
+<td>Negative edges</td>
+<td>❌</td>
+<td>✅</td>
+</tr>
+<tr>
+<td>Negative cycle detection</td>
+<td>❌</td>
+<td>✅</td>
+</tr>
+<tr>
+<td>Main idea</td>
+<td>Greedy</td>
+<td>Repeated relaxation</td>
+</tr>
+<tr>
+<td>Time</td>
+<td><code>O((V+E) log V)</code></td>
+<td><code>O(VE)</code></td>
+</tr>
+<tr>
+<td>Faster generally</td>
+<td>✅</td>
+<td>❌</td>
+</tr>
+<tr>
+<td>Single-source shortest path</td>
+<td>✅</td>
+<td>✅</td>
+</tr>
+</tbody></table>
+
+
+<h3>Fundamental difference</h3>
+
+
+<p><strong>Dijkstra:</strong></p>
+
+
+<blockquote>
+<p>&quot;Pick the closest vertex and finalize it.&quot;</p>
+</blockquote>
+
+
+<p><strong>Bellman-Ford:</strong></p>
+
+
+<blockquote>
+<p>&quot;Keep relaxing all edges repeatedly until shortest distances propagate.&quot;</p>
+</blockquote>
+
+
+<hr>
+
+
+<h1>12. Dijkstra&#39;s Most Important Proof</h1>
+
+
+<p>Why can Dijkstra finalize a vertex?</p>
+
+
+<p>Suppose <code>B</code> is currently the closest unprocessed vertex:</p>
+
+
+<pre class="language-text"><code class="language-text">dist[B] = 5</code></pre>
+
+<p>Any alternative path to B must first go through some other unprocessed vertex <code>C</code>.</p>
+
+
+<p>Since B is currently the closest:</p>
+
+
+<pre class="language-text"><code class="language-text">dist[C] >= 5</code></pre>
+
+<p>And because edge weights are non-negative:</p>
+
+
+<pre class="language-text"><code class="language-text">dist[C] + weight(C,B) >= 5</code></pre>
+
+<p>Therefore, going through another unprocessed vertex cannot produce a value smaller than <code>5</code>.</p>
+
+
+<p>Hence:</p>
+
+
+<pre class="language-text"><code class="language-text">B = 5</code></pre>
+
+<p>is final.</p>
+
+
+<h3>This proof breaks when negative edges exist.</h3>
+
+
+<p>If:</p>
+
+
+<pre class="language-text"><code class="language-text">dist[C] = 8
+C → B = -10</code></pre>
+
+<p>then:</p>
+
+
+<pre class="language-text"><code class="language-text">8 + (-10) = -2</code></pre>
+
+<p>which is smaller than <code>5</code>.</p>
+
+
+<p>That&#39;s exactly why Dijkstra fails with negative edges.</p>
+
+
+<hr>
+
+
+<h1>13. Common Interview Questions</h1>
+
+
+<h3>Q1. Why does Dijkstra fail with negative edges?</h3>
+
+
+<p>Because a negative edge can produce a shorter path to a vertex <strong>after that vertex has already been finalized</strong>.</p>
+
+
+<hr>
+
+
+<h3>Q2. Can Dijkstra handle cycles?</h3>
+
+
+<p>Yes.</p>
+
+
+<blockquote>
+<p><strong>Cycles are not a problem as long as all edge weights are non-negative.</strong></p>
+</blockquote>
+
+
+<hr>
+
+
+<h3>Q3. Can Dijkstra detect negative cycles?</h3>
+
+
+<p>No.</p>
+
+
+<p>Bellman-Ford is used for negative-cycle detection.</p>
+
+
+<hr>
+
+
+<h3>Q4. Why use a priority queue?</h3>
+
+
+<p>To efficiently retrieve the <strong>unprocessed vertex with the smallest known distance</strong>.</p>
+
+
+<hr>
+
+
+<h3>Q5. Why do we use a visited array?</h3>
+
+
+<p>It can be used to mark finalized vertices, although many priority-queue implementations instead use <strong>stale-entry checking</strong>:</p>
+
+
+<pre class="language-java"><code class="language-java"><span class="token keyword">if</span> <span class="token punctuation">(</span>distance <span class="token operator">></span> dist<span class="token punctuation">[</span>node<span class="token punctuation">]</span><span class="token punctuation">)</span> <span class="token keyword">continue</span><span class="token punctuation">;</span></code></pre>
+
+<hr>
+
+
+<h1>⭐ Dijkstra Memory Trick</h1>
+
+
+<p>Remember it as:</p>
+
+
+<pre class="language-text"><code class="language-text">Initialize distances
+       ↓
+Put source in Min Heap
+       ↓
+Take minimum-distance node
+       ↓
+Relax its edges
+       ↓
+Update distances + push into heap
+       ↓
+Repeat</code></pre>
+
+<h3>The most important condition:</h3>
+
+
+<pre class="language-text"><code class="language-text">weight >= 0</code></pre>
+
+<h3>The most important intuition:</h3>
+
+
+<blockquote>
+<p><strong>&quot;Always process the currently closest vertex because, with non-negative edge weights, nothing farther away can later provide a cheaper route to it.&quot;</strong></p>
+</blockquote>
+
+
+<h3>One-line interview definition:</h3>
+
+
+<blockquote>
+<p><strong>Dijkstra is a greedy single-source shortest-path algorithm that repeatedly selects the unprocessed vertex with the minimum tentative distance and relaxes its outgoing edges; it is correct when all edge weights are non-negative.</strong></p>
+</blockquote>
+</article></main>
 </body>
 </html>
