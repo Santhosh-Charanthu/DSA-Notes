@@ -1,8 +1,614 @@
-<!DOCTYPE html>
-<html>
+<!doctype html>
+<html lang="en">
 <head>
-  <title>Bellman_Ford.html</title>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Bellman-Ford Algorithm</title>
+<script>
+(function(){
+  var STORAGE_KEY='bn-theme';
+  var root=document.documentElement;
+  function isDarkOS(){return window.matchMedia&&window.matchMedia('(prefers-color-scheme:dark)').matches}
+  function current(){var s=localStorage.getItem(STORAGE_KEY);return s?s:(isDarkOS()?'dark':'light')}
+  var MOON_SVG='<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9z"/></svg>';
+  var SUN_SVG='<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>';
+  function apply(t){if(t==='dark'){root.classList.add('dark');root.classList.remove('light')}else{root.classList.add('light');root.classList.remove('dark')}var btn=document.getElementById('theme-toggle');if(btn)btn.innerHTML=t==='dark'?SUN_SVG:MOON_SVG}
+  apply(current());
+  window.addEventListener('DOMContentLoaded',function(){
+    apply(current());
+    var btn=document.getElementById('theme-toggle');
+    if(!btn)return;
+    btn.addEventListener('click',function(){
+      var next=current()==='dark'?'light':'dark';
+      localStorage.setItem(STORAGE_KEY,next);
+      apply(next);
+    });
+  });
+})();
+</script>
+<style>
+/* ── Light theme (default) ── */
+:root{
+  --fg:oklch(0.22 0.03 250);--muted-fg:oklch(0.48 0.03 250);--border:oklch(0.9 0.02 230);
+  --accent:oklch(0.62 0.16 240);--accent-soft:color-mix(in oklab,oklch(0.62 0.16 240) 10%,transparent);
+  --card:oklch(1 0 0);--code-bg:oklch(0.19 0.02 250);--code-fg:oklch(0.95 0.01 230);--code-border:oklch(0.3 0.03 250);
+  --inline-code-bg:#f1f5f9;--inline-code-fg:#0c4a6e;
+  --page-bg:linear-gradient(180deg,oklch(0.97 0.03 230) 0%,oklch(0.99 0.01 230) 100%);
+  --doc-shadow:0 20px 60px -20px rgba(2,132,199,.25),0 4px 14px -4px rgba(15,23,42,.08);
+  --thead-bg:color-mix(in oklab,oklch(0.62 0.16 240) 10%,transparent);
+  --toggle-bg:oklch(0.9 0.02 230);--toggle-fg:oklch(0.35 0.04 250);--toggle-hover:oklch(0.84 0.04 230);
+}
+/* ── Dark theme ── */
+.dark{
+  --fg:oklch(0.95 0.01 230);--muted-fg:oklch(0.7 0.03 240);--border:oklch(0.3 0.03 250);
+  --accent:oklch(0.72 0.14 235);--accent-soft:color-mix(in oklab,oklch(0.72 0.14 235) 12%,transparent);
+  --card:oklch(0.21 0.025 250);--code-bg:oklch(0.14 0.02 250);--code-fg:oklch(0.95 0.01 230);--code-border:oklch(0.28 0.03 250);
+  --inline-code-bg:oklch(0.25 0.025 250);--inline-code-fg:oklch(0.95 0.01 230);
+  --page-bg:linear-gradient(180deg,oklch(0.19 0.03 250) 0%,oklch(0.16 0.02 250) 100%);
+  --doc-shadow:0 20px 60px -20px rgba(0,0,0,.5),0 4px 14px -4px rgba(0,0,0,.3);
+  --thead-bg:color-mix(in oklab,oklch(0.72 0.14 235) 10%,transparent);
+  --toggle-bg:oklch(0.28 0.03 250);--toggle-fg:oklch(0.85 0.02 230);--toggle-hover:oklch(0.33 0.04 250);
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{font-family:'Inter',ui-sans-serif,system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;background:var(--page-bg);color:var(--fg);min-height:100vh;padding:32px 16px;line-height:1.75;-webkit-font-smoothing:antialiased;transition:background .2s,color .2s}
+.page{max-width:920px;margin:0 auto}
+.doc{background:var(--card);border-radius:18px;box-shadow:var(--doc-shadow);padding:clamp(24px,5vw,60px);border:1px solid rgba(148,163,184,.2);transition:background .2s,box-shadow .2s}
+/* theme toggle button */
+.theme-toggle{position:fixed;top:16px;right:16px;z-index:100;display:flex;align-items:center;justify-content:center;width:36px;height:36px;border-radius:50%;background:var(--toggle-bg);color:var(--toggle-fg);border:1px solid var(--border);cursor:pointer;font-size:16px;transition:background .15s,transform .15s;box-shadow:0 2px 8px rgba(0,0,0,.12)}
+.theme-toggle:hover{background:var(--toggle-hover);transform:scale(1.08)}
+.title-row{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px 20px;margin:0 0 1.2em;padding-bottom:.5em;border-bottom:1px solid var(--border)}
+.title-row h1{margin:0;padding:0;border:0;flex:1 1 auto;min-width:0}
+.badge{display:inline-flex;align-items:center;gap:6px;padding:7px 14px;border-radius:999px;background:var(--accent-soft);color:var(--accent);font-size:13px;font-weight:600;text-decoration:none;border:1px solid color-mix(in oklab,var(--accent) 30%,transparent);white-space:nowrap;transition:transform .15s ease,box-shadow .15s ease,background .15s ease;box-shadow:0 1px 2px color-mix(in oklab,var(--accent) 15%,transparent);flex:0 0 auto;margin-left:auto;margin-right:8px}
+.badge:hover{background:color-mix(in oklab,var(--accent) 18%,transparent);transform:translateY(-1px);box-shadow:0 6px 16px -6px color-mix(in oklab,var(--accent) 40%,transparent)}
+h1,h2,h3,h4,h5,h6{font-weight:700;line-height:1.25;margin:1.8em 0 .6em;letter-spacing:-.01em;color:var(--fg)}
+h1{font-size:2.15rem;border-bottom:1px solid var(--border);padding-bottom:.4em;margin-top:0}
+h2{font-size:1.6rem}
+h3{font-size:1.3rem}
+h4{font-size:1.1rem}
+p{margin:.9em 0}
+a{color:var(--accent);text-decoration:underline;text-underline-offset:3px}
+strong{font-weight:700}
+del{color:var(--muted-fg)}
+ul,ol{margin:.8em 0;padding-left:1.6em}
+li{margin:.25em 0}
+blockquote{margin:1.2em 0;padding:.5em 1.1em;border-left:4px solid var(--accent);background:var(--accent-soft);color:var(--muted-fg);border-radius:0 .5rem .5rem 0}
+hr{margin:2em 0;border:0;border-top:1px solid var(--border)}
+img{max-width:100%;border-radius:.5rem;margin:1em 0}
+code{font-family:'JetBrains Mono',ui-monospace,'SF Mono',Menlo,Consolas,monospace;font-size:.9em;padding:.15em .4em;background:var(--inline-code-bg);color:var(--inline-code-fg);border-radius:.35rem;border:1px solid var(--border)}
+pre{margin:1.2em 0;padding:1rem 1.1rem;background:var(--code-bg);color:var(--code-fg);border-radius:.7rem;overflow-x:auto;font-size:.9rem;line-height:1.55;border:1px solid var(--code-border)}
+pre code{background:transparent;border:0;padding:0;color:inherit;font-size:inherit}
+table{width:100%;border-collapse:separate;border-spacing:0;margin:1.2em 0;display:table;table-layout:auto;border:1px solid var(--border);border-radius:.6rem;overflow:hidden}
+thead{background:var(--thead-bg)}
+th,td{padding:.65em .9em;border-bottom:1px solid var(--border);text-align:left}
+th{font-weight:600}
+tr:last-child td{border-bottom:0}
+.callout{margin:1.5em 0;padding:1rem 1.1rem;border-radius:.8rem;border:1px solid var(--callout-border,var(--border));background:var(--callout-bg,var(--inline-code-bg));box-shadow:0 1px 2px rgba(15,23,42,.04)}
+.callout-title{display:flex;align-items:center;gap:.55rem;font-weight:700;font-size:1rem;margin-bottom:.5rem;color:var(--callout-fg,var(--fg))}
+.callout-icon{font-size:1.15rem;line-height:1}
+.callout-body>:first-child{margin-top:0}
+.callout-body>:last-child{margin-bottom:0}
+.callout-note{--callout-bg:color-mix(in oklab,oklch(0.65 0.16 240) 10%,transparent);--callout-border:color-mix(in oklab,oklch(0.65 0.16 240) 40%,transparent);--callout-fg:oklch(0.4 0.15 240)}
+.callout-important{--callout-bg:color-mix(in oklab,oklch(0.65 0.22 300) 10%,transparent);--callout-border:color-mix(in oklab,oklch(0.65 0.22 300) 40%,transparent);--callout-fg:oklch(0.42 0.2 300)}
+.callout-warning{--callout-bg:color-mix(in oklab,oklch(0.75 0.17 70) 15%,transparent);--callout-border:color-mix(in oklab,oklch(0.75 0.17 70) 45%,transparent);--callout-fg:oklch(0.45 0.18 60)}
+.callout-tip{--callout-bg:color-mix(in oklab,oklch(0.72 0.18 155) 12%,transparent);--callout-border:color-mix(in oklab,oklch(0.72 0.18 155) 40%,transparent);--callout-fg:oklch(0.4 0.15 155)}
+.callout-question{--callout-bg:color-mix(in oklab,oklch(0.7 0.18 200) 12%,transparent);--callout-border:color-mix(in oklab,oklch(0.7 0.18 200) 40%,transparent);--callout-fg:oklch(0.4 0.15 200)}
+.callout-observation{--callout-bg:color-mix(in oklab,oklch(0.7 0.15 180) 12%,transparent);--callout-border:color-mix(in oklab,oklch(0.7 0.15 180) 40%,transparent);--callout-fg:oklch(0.4 0.13 180)}
+.callout-complexity{--callout-bg:color-mix(in oklab,oklch(0.7 0.15 25) 10%,transparent);--callout-border:color-mix(in oklab,oklch(0.7 0.15 25) 40%,transparent);--callout-fg:oklch(0.44 0.16 25)}
+.callout-summary{--callout-bg:color-mix(in oklab,oklch(0.65 0.14 260) 10%,transparent);--callout-border:color-mix(in oklab,oklch(0.65 0.14 260) 40%,transparent);--callout-fg:oklch(0.4 0.13 260)}
+.callout-advantage{--callout-bg:color-mix(in oklab,oklch(0.72 0.18 155) 12%,transparent);--callout-border:color-mix(in oklab,oklch(0.72 0.18 155) 40%,transparent);--callout-fg:oklch(0.4 0.15 155)}
+.callout-disadvantage{--callout-bg:color-mix(in oklab,oklch(0.7 0.2 20) 10%,transparent);--callout-border:color-mix(in oklab,oklch(0.7 0.2 20) 40%,transparent);--callout-fg:oklch(0.45 0.19 20)}
+.callout-blue{--callout-bg:color-mix(in oklab,oklch(0.65 0.16 240) 10%,transparent);--callout-border:color-mix(in oklab,oklch(0.65 0.16 240) 40%,transparent);--callout-fg:oklch(0.4 0.15 240)}
+.callout-green{--callout-bg:color-mix(in oklab,oklch(0.72 0.18 155) 12%,transparent);--callout-border:color-mix(in oklab,oklch(0.72 0.18 155) 40%,transparent);--callout-fg:oklch(0.4 0.15 155)}
+.callout-red{--callout-bg:color-mix(in oklab,oklch(0.65 0.22 20) 10%,transparent);--callout-border:color-mix(in oklab,oklch(0.65 0.22 20) 45%,transparent);--callout-fg:oklch(0.42 0.2 20)}
+.callout-yellow{--callout-bg:color-mix(in oklab,oklch(0.82 0.18 90) 15%,transparent);--callout-border:color-mix(in oklab,oklch(0.82 0.18 90) 45%,transparent);--callout-fg:oklch(0.45 0.16 80)}
+.callout-orange{--callout-bg:color-mix(in oklab,oklch(0.75 0.18 55) 12%,transparent);--callout-border:color-mix(in oklab,oklch(0.75 0.18 55) 45%,transparent);--callout-fg:oklch(0.44 0.17 45)}
+.callout-purple{--callout-bg:color-mix(in oklab,oklch(0.65 0.2 310) 10%,transparent);--callout-border:color-mix(in oklab,oklch(0.65 0.2 310) 40%,transparent);--callout-fg:oklch(0.42 0.18 310)}
+.callout-gray{--callout-bg:color-mix(in oklab,oklch(0.6 0.01 250) 12%,transparent);--callout-border:color-mix(in oklab,oklch(0.6 0.01 250) 40%,transparent);--callout-fg:oklch(0.4 0.02 250)}
+.callout-teal{--callout-bg:color-mix(in oklab,oklch(0.68 0.15 185) 11%,transparent);--callout-border:color-mix(in oklab,oklch(0.68 0.15 185) 40%,transparent);--callout-fg:oklch(0.38 0.13 185)}
+.callout-cyan{--callout-bg:color-mix(in oklab,oklch(0.72 0.14 210) 12%,transparent);--callout-border:color-mix(in oklab,oklch(0.72 0.14 210) 42%,transparent);--callout-fg:oklch(0.38 0.12 210)}
+.callout-pink{--callout-bg:color-mix(in oklab,oklch(0.72 0.2 350) 10%,transparent);--callout-border:color-mix(in oklab,oklch(0.72 0.2 350) 40%,transparent);--callout-fg:oklch(0.42 0.18 350)}
+.callout-rose{--callout-bg:color-mix(in oklab,oklch(0.67 0.22 5) 10%,transparent);--callout-border:color-mix(in oklab,oklch(0.67 0.22 5) 42%,transparent);--callout-fg:oklch(0.42 0.2 5)}
+.callout-indigo{--callout-bg:color-mix(in oklab,oklch(0.6 0.2 270) 10%,transparent);--callout-border:color-mix(in oklab,oklch(0.6 0.2 270) 40%,transparent);--callout-fg:oklch(0.4 0.18 270)}
+.callout-violet{--callout-bg:color-mix(in oklab,oklch(0.63 0.22 295) 10%,transparent);--callout-border:color-mix(in oklab,oklch(0.63 0.22 295) 40%,transparent);--callout-fg:oklch(0.4 0.2 295)}
+.callout-lime{--callout-bg:color-mix(in oklab,oklch(0.78 0.2 125) 12%,transparent);--callout-border:color-mix(in oklab,oklch(0.78 0.2 125) 42%,transparent);--callout-fg:oklch(0.4 0.16 125)}
+.callout-amber{--callout-bg:color-mix(in oklab,oklch(0.8 0.18 75) 14%,transparent);--callout-border:color-mix(in oklab,oklch(0.8 0.18 75) 45%,transparent);--callout-fg:oklch(0.44 0.16 65)}
+.callout-sky{--callout-bg:color-mix(in oklab,oklch(0.7 0.15 225) 11%,transparent);--callout-border:color-mix(in oklab,oklch(0.7 0.15 225) 40%,transparent);--callout-fg:oklch(0.38 0.14 225)}
+.callout-slate{--callout-bg:color-mix(in oklab,oklch(0.58 0.04 240) 12%,transparent);--callout-border:color-mix(in oklab,oklch(0.58 0.04 240) 40%,transparent);--callout-fg:oklch(0.36 0.04 240)}
+.callout-peach{--callout-bg:color-mix(in oklab,#ffb5b5 18%,transparent);--callout-border:color-mix(in oklab,#ffb5b5 50%,transparent);--callout-fg:oklch(0.42 0.14 15)}
+/* Prism token colors — same palette as the live preview */
+.token.comment,.token.prolog,.token.doctype,.token.cdata{color:oklch(0.65 0.03 250)}
+.token.punctuation{color:oklch(0.85 0.02 230)}
+.token.property,.token.tag,.token.constant,.token.symbol,.token.deleted{color:oklch(0.75 0.18 20)}
+.token.boolean,.token.number{color:oklch(0.8 0.15 70)}
+.token.selector,.token.attr-name,.token.string,.token.char,.token.builtin,.token.inserted{color:oklch(0.82 0.15 155)}
+.token.operator,.token.entity,.token.url,.token.variable{color:oklch(0.85 0.1 200)}
+.token.atrule,.token.attr-value,.token.function,.token.class-name{color:oklch(0.82 0.16 300)}
+.token.keyword{color:oklch(0.78 0.17 260)}
+.token.regex,.token.important{color:oklch(0.8 0.18 60)}
+@media (prefers-color-scheme:dark){:root:not(.light){--fg:oklch(0.95 0.01 230);--muted-fg:oklch(0.7 0.03 240);--border:oklch(0.3 0.03 250);--accent:oklch(0.72 0.14 235);--accent-soft:color-mix(in oklab,oklch(0.72 0.14 235) 12%,transparent);--card:oklch(0.21 0.025 250);--code-bg:oklch(0.14 0.02 250);--code-fg:oklch(0.95 0.01 230);--code-border:oklch(0.28 0.03 250);--inline-code-bg:oklch(0.25 0.025 250);--inline-code-fg:oklch(0.95 0.01 230);--page-bg:linear-gradient(180deg,oklch(0.19 0.03 250) 0%,oklch(0.16 0.02 250) 100%);--doc-shadow:0 20px 60px -20px rgba(0,0,0,.5),0 4px 14px -4px rgba(0,0,0,.3);--thead-bg:color-mix(in oklab,oklch(0.72 0.14 235) 10%,transparent);--toggle-bg:oklch(0.28 0.03 250);--toggle-fg:oklch(0.85 0.02 230);--toggle-hover:oklch(0.33 0.04 250)}}
+@media (max-width:640px){body{padding:12px 8px}.doc{padding:20px 16px;border-radius:12px}h1{font-size:1.7rem}.title-row{align-items:flex-start}.badge{font-size:12px;padding:5px 10px}}
+@media print{body{background:#fff;padding:0}.doc{box-shadow:none;border:0;padding:0;max-width:none}.theme-toggle{display:none}}
+</style>
 </head>
 <body>
+<button id="theme-toggle" class="theme-toggle" aria-label="Toggle dark/light mode"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9z"/></svg></button>
+<main class="page"><article class="doc">
+<h1>Bellman-Ford Algorithm</h1>
+
+
+<h2>1. What is Bellman-Ford?</h2>
+
+
+<p>Bellman-Ford is a <strong>Single Source Shortest Path (SSSP)</strong> algorithm used to find the shortest distance from one source vertex to all other vertices.</p>
+
+
+<h3>Special features</h3>
+
+
+<ul>
+<li>Works with <strong>positive and negative edge weights</strong></li>
+<li>Can detect a <strong>negative-weight cycle</strong></li>
+<li>Works for <strong>directed and undirected graphs</strong> (with appropriate edge representation)</li>
+</ul>
+
+
+<hr>
+
+
+<h1>2. Core Intuition</h1>
+
+
+<p>The main idea is <strong>Relaxation</strong>.</p>
+
+
+<p>For every edge:</p>
+
+
+<pre class="language-text"><code class="language-text">u ----wt----> v</code></pre>
+
+<p>we check:</p>
+
+
+<pre class="language-text"><code class="language-text">dist[u] + wt &lt; dist[v]</code></pre>
+
+<p>If true:</p>
+
+
+<pre class="language-text"><code class="language-text">dist[v] = dist[u] + wt</code></pre>
+
+<h3>In simple words:</h3>
+
+
+<blockquote>
+<p><strong>&quot;Can I reach <code>v</code> with a shorter distance by going through <code>u</code>?&quot;</strong></p>
+</blockquote>
+
+
+<hr>
+
+
+<h1>3. Why Do We Relax All Edges V-1 Times?</h1>
+
+
+<p>This is the most important concept in Bellman-Ford.</p>
+
+
+<h3>Key fact:</h3>
+
+
+<p>A shortest path <strong>without a cycle</strong> can contain at most <code>V-1</code> edges.</p>
+
+
+<p>Why?</p>
+
+
+<p>If there are <code>V</code> vertices:</p>
+
+
+<pre class="language-text"><code class="language-text">A → B → C → D → E</code></pre>
+
+<p>There are:</p>
+
+
+<pre class="language-text"><code class="language-text">5 vertices
+4 edges</code></pre>
+
+<p>To have a path with more than <code>V-1</code> edges, we must visit some vertex more than once.</p>
+
+
+<p>That creates a <strong>cycle</strong>.</p>
+
+
+<p>Therefore:</p>
+
+
+<pre class="language-text"><code class="language-text">Maximum edges in a simple shortest path = V - 1</code></pre>
+
+<h3>Why does this matter?</h3>
+
+
+<p>Bellman-Ford relaxes every edge repeatedly so that shortest-distance information can propagate along the path.</p>
+
+
+<p>For example:</p>
+
+
+<pre class="language-text"><code class="language-text">A → B → C → D</code></pre>
+
+<p>Information may propagate like:</p>
+
+
+<pre class="language-text"><code class="language-text">A → B        1 edge
+A → B → C    2 edges
+A → B → C → D  3 edges</code></pre>
+
+<p>Since the longest possible simple shortest path has at most <code>V-1</code> edges, <strong><code>V-1</code> relaxation rounds are sufficient to discover every shortest path that does not involve a negative cycle.</strong></p>
+
+
+<p>🧠 The key intuition</p>
+
+
+<p>V - 1 doesn&#39;t mean we &quot;want&quot; to traverse V-1 edges. It means a shortest path can never need more than V-1 edges.</p>
+
+
+<hr>
+
+
+<h1>4. Why Do We Need One More Traversal?</h1>
+
+
+<p>After completing:</p>
+
+
+<pre class="language-text"><code class="language-text">V - 1 rounds</code></pre>
+
+<p>we perform <strong>one additional traversal of all edges</strong>.</p>
+
+
+<pre class="language-java"><code class="language-java"><span class="token keyword">for</span> <span class="token punctuation">(</span><span class="token keyword">int</span><span class="token punctuation">[</span><span class="token punctuation">]</span> edge <span class="token operator">:</span> edges<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+
+    <span class="token keyword">int</span> u <span class="token operator">=</span> edge<span class="token punctuation">[</span><span class="token number">0</span><span class="token punctuation">]</span><span class="token punctuation">;</span>
+    <span class="token keyword">int</span> v <span class="token operator">=</span> edge<span class="token punctuation">[</span><span class="token number">1</span><span class="token punctuation">]</span><span class="token punctuation">;</span>
+    <span class="token keyword">int</span> wt <span class="token operator">=</span> edge<span class="token punctuation">[</span><span class="token number">2</span><span class="token punctuation">]</span><span class="token punctuation">;</span>
+
+    <span class="token keyword">if</span> <span class="token punctuation">(</span>dist<span class="token punctuation">[</span>u<span class="token punctuation">]</span> <span class="token operator">!=</span> <span class="token constant">INF</span> <span class="token operator">&amp;&amp;</span> dist<span class="token punctuation">[</span>u<span class="token punctuation">]</span> <span class="token operator">+</span> wt <span class="token operator">&lt;</span> dist<span class="token punctuation">[</span>v<span class="token punctuation">]</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token keyword">return</span> <span class="token keyword">new</span> <span class="token keyword">int</span><span class="token punctuation">[</span><span class="token punctuation">]</span><span class="token punctuation">{</span><span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">}</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span></code></pre>
+
+<h3>Why?</h3>
+
+
+<p>After <code>V-1</code> rounds:</p>
+
+
+<blockquote>
+<p>Every shortest path without a cycle should already have its minimum possible distance.</p>
+</blockquote>
+
+
+<p>So if we can <strong>still reduce a distance</strong>, something unusual is happening.</p>
+
+
+<p>The path must require <strong>more than <code>V-1</code> edges</strong>.</p>
+
+
+<p>But a path with more than <code>V-1</code> edges must contain a cycle.</p>
+
+
+<p>If traversing that cycle keeps reducing the distance, the cycle must have a:</p>
+
+
+<pre class="language-text"><code class="language-text">Negative total weight</code></pre>
+
+<p>Therefore:</p>
+
+
+<pre class="language-text"><code class="language-text">Distance can still decrease
+        ↓
+Path requires another edge
+        ↓
+There is a cycle
+        ↓
+Cycle decreases distance
+        ↓
+Negative-weight cycle</code></pre>
+
+<p>Hence, the extra traversal is used for:</p>
+
+
+<h2>Negative Cycle Detection</h2>
+
+
+<hr>
+
+
+<h1>5. Why <code>dist[u] != INF</code> Is Checked?</h1>
+
+
+<pre class="language-java"><code class="language-java"><span class="token keyword">if</span> <span class="token punctuation">(</span>dist<span class="token punctuation">[</span>u<span class="token punctuation">]</span> <span class="token operator">!=</span> <span class="token constant">INF</span> <span class="token operator">&amp;&amp;</span> dist<span class="token punctuation">[</span>u<span class="token punctuation">]</span> <span class="token operator">+</span> wt <span class="token operator">&lt;</span> dist<span class="token punctuation">[</span>v<span class="token punctuation">]</span><span class="token punctuation">)</span></code></pre>
+
+<p>The first condition:</p>
+
+
+<pre class="language-java"><code class="language-java">dist<span class="token punctuation">[</span>u<span class="token punctuation">]</span> <span class="token operator">!=</span> <span class="token constant">INF</span></code></pre>
+
+<p>means:</p>
+
+
+<blockquote>
+<p><strong><code>u</code> must be reachable from the source.</strong></p>
+</blockquote>
+
+
+<p>We only want to detect a negative cycle that is <strong>reachable from the source</strong>.</p>
+
+
+<p>An unreachable negative cycle should not affect the shortest paths from our source.</p>
+
+
+<hr>
+
+
+<h1>6. Complete Algorithm</h1>
+
+
+<h3>Step 1: Initialize distances</h3>
+
+
+<pre class="language-text"><code class="language-text">dist[source] = 0
+dist[all other vertices] = INF</code></pre>
+
+<hr>
+
+
+<h3>Step 2: Relax all edges <code>V-1</code> times</h3>
+
+
+<pre class="language-java"><code class="language-java"><span class="token keyword">for</span> <span class="token punctuation">(</span><span class="token keyword">int</span> i <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span> i <span class="token operator">&lt;</span> <span class="token class-name">V</span> <span class="token operator">-</span> <span class="token number">1</span><span class="token punctuation">;</span> i<span class="token operator">++</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+
+    <span class="token keyword">for</span> <span class="token punctuation">(</span><span class="token keyword">int</span><span class="token punctuation">[</span><span class="token punctuation">]</span> edge <span class="token operator">:</span> edges<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+
+        <span class="token keyword">int</span> u <span class="token operator">=</span> edge<span class="token punctuation">[</span><span class="token number">0</span><span class="token punctuation">]</span><span class="token punctuation">;</span>
+        <span class="token keyword">int</span> v <span class="token operator">=</span> edge<span class="token punctuation">[</span><span class="token number">1</span><span class="token punctuation">]</span><span class="token punctuation">;</span>
+        <span class="token keyword">int</span> wt <span class="token operator">=</span> edge<span class="token punctuation">[</span><span class="token number">2</span><span class="token punctuation">]</span><span class="token punctuation">;</span>
+
+        <span class="token keyword">if</span> <span class="token punctuation">(</span>dist<span class="token punctuation">[</span>u<span class="token punctuation">]</span> <span class="token operator">!=</span> <span class="token constant">INF</span> <span class="token operator">&amp;&amp;</span>
+            dist<span class="token punctuation">[</span>u<span class="token punctuation">]</span> <span class="token operator">+</span> wt <span class="token operator">&lt;</span> dist<span class="token punctuation">[</span>v<span class="token punctuation">]</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+
+            dist<span class="token punctuation">[</span>v<span class="token punctuation">]</span> <span class="token operator">=</span> dist<span class="token punctuation">[</span>u<span class="token punctuation">]</span> <span class="token operator">+</span> wt<span class="token punctuation">;</span>
+        <span class="token punctuation">}</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span></code></pre>
+
+<p>Purpose:</p>
+
+
+<blockquote>
+<p>Find shortest paths assuming there is no reachable negative cycle.</p>
+</blockquote>
+
+
+<hr>
+
+
+<h3>Step 3: Perform one additional traversal</h3>
+
+
+<pre class="language-java"><code class="language-java"><span class="token keyword">for</span> <span class="token punctuation">(</span><span class="token keyword">int</span><span class="token punctuation">[</span><span class="token punctuation">]</span> edge <span class="token operator">:</span> edges<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+
+    <span class="token keyword">int</span> u <span class="token operator">=</span> edge<span class="token punctuation">[</span><span class="token number">0</span><span class="token punctuation">]</span><span class="token punctuation">;</span>
+    <span class="token keyword">int</span> v <span class="token operator">=</span> edge<span class="token punctuation">[</span><span class="token number">1</span><span class="token punctuation">]</span><span class="token punctuation">;</span>
+    <span class="token keyword">int</span> wt <span class="token operator">=</span> edge<span class="token punctuation">[</span><span class="token number">2</span><span class="token punctuation">]</span><span class="token punctuation">;</span>
+
+    <span class="token keyword">if</span> <span class="token punctuation">(</span>dist<span class="token punctuation">[</span>u<span class="token punctuation">]</span> <span class="token operator">!=</span> <span class="token constant">INF</span> <span class="token operator">&amp;&amp;</span>
+        dist<span class="token punctuation">[</span>u<span class="token punctuation">]</span> <span class="token operator">+</span> wt <span class="token operator">&lt;</span> dist<span class="token punctuation">[</span>v<span class="token punctuation">]</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+
+        <span class="token keyword">return</span> <span class="token keyword">new</span> <span class="token keyword">int</span><span class="token punctuation">[</span><span class="token punctuation">]</span><span class="token punctuation">{</span><span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">}</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span></code></pre>
+
+<p>Purpose:</p>
+
+
+<blockquote>
+<p>Check whether any distance can still be reduced.</p>
+</blockquote>
+
+
+<p>If yes:</p>
+
+
+<pre class="language-text"><code class="language-text">→ Reachable negative-weight cycle exists</code></pre>
+
+<p>Otherwise:</p>
+
+
+<pre class="language-text"><code class="language-text">→ No reachable negative-weight cycle
+→ Return shortest distances</code></pre>
+
+<hr>
+
+
+<h1>7. Example of Negative Cycle</h1>
+
+
+<p>Consider:</p>
+
+
+<pre class="language-text"><code class="language-text">A ──2──> B
+↑       │
+│       -4
+│       ↓
+└──1──── C</code></pre>
+
+<p>Cycle:</p>
+
+
+<pre class="language-text"><code class="language-text">A → B → C → A</code></pre>
+
+<p>Total weight:</p>
+
+
+<pre class="language-text"><code class="language-text">2 + (-4) + 1 = -1</code></pre>
+
+<p>Every time we traverse this cycle:</p>
+
+
+<pre class="language-text"><code class="language-text">distance decreases by 1</code></pre>
+
+<p>Therefore, there is no finite shortest distance.</p>
+
+
+<p>The extra traversal detects that:</p>
+
+
+<pre class="language-text"><code class="language-text">dist[u] + wt &lt; dist[v]</code></pre>
+
+<p>is still possible after <code>V-1</code> rounds.</p>
+
+
+<p>Hence:</p>
+
+
+<pre class="language-java"><code class="language-java"><span class="token keyword">return</span> <span class="token keyword">new</span> <span class="token keyword">int</span><span class="token punctuation">[</span><span class="token punctuation">]</span><span class="token punctuation">{</span><span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">}</span><span class="token punctuation">;</span></code></pre>
+
+<hr>
+
+
+<h1>8. Time Complexity</h1>
+
+
+<p>There are two nested operations:</p>
+
+
+<pre class="language-text"><code class="language-text">V - 1 rounds
+        ×
+E edges</code></pre>
+
+<p>Therefore:</p>
+
+
+<pre class="language-text"><code class="language-text">Time = O(V × E)</code></pre>
+
+<p>The additional negative-cycle check scans all edges once:</p>
+
+
+<pre class="language-text"><code class="language-text">O(E)</code></pre>
+
+<p>So overall:</p>
+
+
+<pre class="language-text"><code class="language-text">O(VE)</code></pre>
+
+<hr>
+
+
+<h1>9. Space Complexity</h1>
+
+
+<p>We mainly store:</p>
+
+
+<pre class="language-text"><code class="language-text">dist[] → O(V)</code></pre>
+
+<p>Therefore:</p>
+
+
+<pre class="language-text"><code class="language-text">Space = O(V)</code></pre>
+
+<hr>
+
+
+<h1>10. Bellman-Ford vs Dijkstra</h1>
+
+
+<table>
+<thead>
+<tr>
+<th>Feature</th>
+<th>Bellman-Ford</th>
+<th>Dijkstra</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Positive edges</td>
+<td>✅</td>
+<td>✅</td>
+</tr>
+<tr>
+<td>Negative edges</td>
+<td>✅</td>
+<td>❌</td>
+</tr>
+<tr>
+<td>Negative cycle detection</td>
+<td>✅</td>
+<td>❌</td>
+</tr>
+<tr>
+<td>Approach</td>
+<td>Repeated relaxation</td>
+<td>Greedy</td>
+</tr>
+<tr>
+<td>Time</td>
+<td><code>O(VE)</code></td>
+<td><code>O((V+E) log V)</code> with min-heap</td>
+</tr>
+</tbody></table>
+
+
+<h3>Fundamental difference</h3>
+
+
+<blockquote>
+<p><strong>Dijkstra relies on a greedy choice that assumes once a vertex is finalized, its distance cannot improve. Bellman-Ford makes no such assumption and repeatedly relaxes all edges.</strong></p>
+</blockquote>
+
+
+<hr>
+
+
+<h1>⭐ Interview Memory Trick</h1>
+
+
+<p>Remember Bellman-Ford as:</p>
+
+
+<pre class="language-text"><code class="language-text">Initialize
+    ↓
+Relax ALL edges V-1 times
+    ↓
+One EXTRA pass
+    ↓
+Can distance still decrease?
+    ↓
+YES → Negative cycle
+NO  → Shortest distances</code></pre>
+
+<h3>The two most important facts:</h3>
+
+
+<blockquote>
+<p><strong>Why <code>V-1</code>?</strong>
+A shortest path without a cycle can contain at most <code>V-1</code> edges.</p>
+</blockquote>
+
+
+<blockquote>
+<p><strong>Why one extra pass?</strong>
+If a distance can still decrease after <code>V-1</code> rounds, the path must contain a cycle whose total weight is negative.</p>
+</blockquote>
+
+
+<h3>One-line definition</h3>
+
+
+<blockquote>
+<p><strong>Bellman-Ford repeatedly relaxes every edge <code>V-1</code> times to find shortest paths, then performs one extra relaxation pass to detect a reachable negative-weight cycle.</strong></p>
+</blockquote>
+</article></main>
 </body>
 </html>
