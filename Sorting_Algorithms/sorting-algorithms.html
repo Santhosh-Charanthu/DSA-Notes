@@ -1,0 +1,1356 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>SORTING ALGORITHMS</title>
+<script>
+(function(){
+  var STORAGE_KEY='bn-theme';
+  var root=document.documentElement;
+  function isDarkOS(){return window.matchMedia&&window.matchMedia('(prefers-color-scheme:dark)').matches}
+  function current(){var s=localStorage.getItem(STORAGE_KEY);return s?s:(isDarkOS()?'dark':'light')}
+  var MOON_SVG='<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9z"/></svg>';
+  var SUN_SVG='<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>';
+  function apply(t){if(t==='dark'){root.classList.add('dark');root.classList.remove('light')}else{root.classList.add('light');root.classList.remove('dark')}var btn=document.getElementById('theme-toggle');if(btn)btn.innerHTML=t==='dark'?SUN_SVG:MOON_SVG}
+  apply(current());
+  window.addEventListener('DOMContentLoaded',function(){
+    apply(current());
+    var btn=document.getElementById('theme-toggle');
+    if(!btn)return;
+    btn.addEventListener('click',function(){
+      var next=current()==='dark'?'light':'dark';
+      localStorage.setItem(STORAGE_KEY,next);
+      apply(next);
+    });
+  });
+})();
+</script>
+<style>
+/* ── Light theme (default) ── */
+:root{
+  --fg:oklch(0.22 0.03 250);--muted-fg:oklch(0.48 0.03 250);--border:oklch(0.9 0.02 230);
+  --accent:oklch(0.62 0.16 240);--accent-soft:color-mix(in oklab,oklch(0.62 0.16 240) 10%,transparent);
+  --card:oklch(1 0 0);--code-bg:oklch(0.19 0.02 250);--code-fg:oklch(0.95 0.01 230);--code-border:oklch(0.3 0.03 250);
+  --inline-code-bg:#f1f5f9;--inline-code-fg:#0c4a6e;
+  --page-bg:linear-gradient(180deg,oklch(0.97 0.03 230) 0%,oklch(0.99 0.01 230) 100%);
+  --doc-shadow:0 20px 60px -20px rgba(2,132,199,.25),0 4px 14px -4px rgba(15,23,42,.08);
+  --thead-bg:color-mix(in oklab,oklch(0.62 0.16 240) 10%,transparent);
+  --toggle-bg:oklch(0.9 0.02 230);--toggle-fg:oklch(0.35 0.04 250);--toggle-hover:oklch(0.84 0.04 230);
+}
+/* ── Dark theme ── */
+.dark{
+  --fg:oklch(0.95 0.01 230);--muted-fg:oklch(0.7 0.03 240);--border:oklch(0.3 0.03 250);
+  --accent:oklch(0.72 0.14 235);--accent-soft:color-mix(in oklab,oklch(0.72 0.14 235) 12%,transparent);
+  --card:oklch(0.21 0.025 250);--code-bg:oklch(0.14 0.02 250);--code-fg:oklch(0.95 0.01 230);--code-border:oklch(0.28 0.03 250);
+  --inline-code-bg:oklch(0.25 0.025 250);--inline-code-fg:oklch(0.95 0.01 230);
+  --page-bg:linear-gradient(180deg,oklch(0.19 0.03 250) 0%,oklch(0.16 0.02 250) 100%);
+  --doc-shadow:0 20px 60px -20px rgba(0,0,0,.5),0 4px 14px -4px rgba(0,0,0,.3);
+  --thead-bg:color-mix(in oklab,oklch(0.72 0.14 235) 10%,transparent);
+  --toggle-bg:oklch(0.28 0.03 250);--toggle-fg:oklch(0.85 0.02 230);--toggle-hover:oklch(0.33 0.04 250);
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{font-family:'Inter',ui-sans-serif,system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;background:var(--page-bg);color:var(--fg);min-height:100vh;padding:32px 16px;line-height:1.75;-webkit-font-smoothing:antialiased;transition:background .2s,color .2s}
+.page{max-width:920px;margin:0 auto}
+.doc{background:var(--card);border-radius:18px;box-shadow:var(--doc-shadow);padding:clamp(24px,5vw,60px);border:1px solid rgba(148,163,184,.2);transition:background .2s,box-shadow .2s}
+/* theme toggle button */
+.theme-toggle{position:fixed;top:16px;right:16px;z-index:100;display:flex;align-items:center;justify-content:center;width:36px;height:36px;border-radius:50%;background:var(--toggle-bg);color:var(--toggle-fg);border:1px solid var(--border);cursor:pointer;font-size:16px;transition:background .15s,transform .15s;box-shadow:0 2px 8px rgba(0,0,0,.12)}
+.theme-toggle:hover{background:var(--toggle-hover);transform:scale(1.08)}
+.title-row{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px 20px;margin:0 0 1.2em;padding-bottom:.5em;border-bottom:1px solid var(--border)}
+.title-row h1{margin:0;padding:0;border:0;flex:1 1 auto;min-width:0}
+.badge{display:inline-flex;align-items:center;gap:6px;padding:7px 14px;border-radius:999px;background:var(--accent-soft);color:var(--accent);font-size:13px;font-weight:600;text-decoration:none;border:1px solid color-mix(in oklab,var(--accent) 30%,transparent);white-space:nowrap;transition:transform .15s ease,box-shadow .15s ease,background .15s ease;box-shadow:0 1px 2px color-mix(in oklab,var(--accent) 15%,transparent);flex:0 0 auto;margin-left:auto;margin-right:8px}
+.badge:hover{background:color-mix(in oklab,var(--accent) 18%,transparent);transform:translateY(-1px);box-shadow:0 6px 16px -6px color-mix(in oklab,var(--accent) 40%,transparent)}
+h1,h2,h3,h4,h5,h6{font-weight:700;line-height:1.25;margin:1.8em 0 .6em;letter-spacing:-.01em;color:var(--fg)}
+h1{font-size:2.15rem;border-bottom:1px solid var(--border);padding-bottom:.4em;margin-top:0}
+h2{font-size:1.6rem}
+h3{font-size:1.3rem}
+h4{font-size:1.1rem}
+p{margin:.9em 0}
+a{color:var(--accent);text-decoration:underline;text-underline-offset:3px}
+strong{font-weight:700}
+del{color:var(--muted-fg)}
+ul,ol{margin:.8em 0;padding-left:1.6em}
+li{margin:.25em 0}
+blockquote{margin:1.2em 0;padding:.5em 1.1em;border-left:4px solid var(--accent);background:var(--accent-soft);color:var(--muted-fg);border-radius:0 .5rem .5rem 0}
+hr{margin:2em 0;border:0;border-top:1px solid var(--border)}
+img{max-width:100%;border-radius:.5rem;margin:1em 0}
+code{font-family:'JetBrains Mono',ui-monospace,'SF Mono',Menlo,Consolas,monospace;font-size:.9em;padding:.15em .4em;background:var(--inline-code-bg);color:var(--inline-code-fg);border-radius:.35rem;border:1px solid var(--border)}
+pre{margin:1.2em 0;padding:1rem 1.1rem;background:var(--code-bg);color:var(--code-fg);border-radius:.7rem;overflow-x:auto;font-size:.9rem;line-height:1.55;border:1px solid var(--code-border)}
+pre code{background:transparent;border:0;padding:0;color:inherit;font-size:inherit}
+table{width:100%;border-collapse:separate;border-spacing:0;margin:1.2em 0;display:table;table-layout:auto;border:1px solid var(--border);border-radius:.6rem;overflow:hidden}
+thead{background:var(--thead-bg)}
+th,td{padding:.65em .9em;border-bottom:1px solid var(--border);text-align:left}
+th{font-weight:600}
+tr:last-child td{border-bottom:0}
+.callout{margin:1.5em 0;padding:1rem 1.1rem;border-radius:.8rem;border:1px solid var(--callout-border,var(--border));background:var(--callout-bg,var(--inline-code-bg));box-shadow:0 1px 2px rgba(15,23,42,.04)}
+.callout-title{display:flex;align-items:center;gap:.55rem;font-weight:700;font-size:1rem;margin-bottom:.5rem;color:var(--callout-fg,var(--fg))}
+.callout-icon{font-size:1.15rem;line-height:1}
+.callout-body>:first-child{margin-top:0}
+.callout-body>:last-child{margin-bottom:0}
+.callout-note{--callout-bg:color-mix(in oklab,oklch(0.65 0.16 240) 10%,transparent);--callout-border:color-mix(in oklab,oklch(0.65 0.16 240) 40%,transparent);--callout-fg:oklch(0.4 0.15 240)}
+.callout-important{--callout-bg:color-mix(in oklab,oklch(0.65 0.22 300) 10%,transparent);--callout-border:color-mix(in oklab,oklch(0.65 0.22 300) 40%,transparent);--callout-fg:oklch(0.42 0.2 300)}
+.callout-warning{--callout-bg:color-mix(in oklab,oklch(0.75 0.17 70) 15%,transparent);--callout-border:color-mix(in oklab,oklch(0.75 0.17 70) 45%,transparent);--callout-fg:oklch(0.45 0.18 60)}
+.callout-tip{--callout-bg:color-mix(in oklab,oklch(0.72 0.18 155) 12%,transparent);--callout-border:color-mix(in oklab,oklch(0.72 0.18 155) 40%,transparent);--callout-fg:oklch(0.4 0.15 155)}
+.callout-question{--callout-bg:color-mix(in oklab,oklch(0.7 0.18 200) 12%,transparent);--callout-border:color-mix(in oklab,oklch(0.7 0.18 200) 40%,transparent);--callout-fg:oklch(0.4 0.15 200)}
+.callout-observation{--callout-bg:color-mix(in oklab,oklch(0.7 0.15 180) 12%,transparent);--callout-border:color-mix(in oklab,oklch(0.7 0.15 180) 40%,transparent);--callout-fg:oklch(0.4 0.13 180)}
+.callout-complexity{--callout-bg:color-mix(in oklab,oklch(0.7 0.15 25) 10%,transparent);--callout-border:color-mix(in oklab,oklch(0.7 0.15 25) 40%,transparent);--callout-fg:oklch(0.44 0.16 25)}
+.callout-summary{--callout-bg:color-mix(in oklab,oklch(0.65 0.14 260) 10%,transparent);--callout-border:color-mix(in oklab,oklch(0.65 0.14 260) 40%,transparent);--callout-fg:oklch(0.4 0.13 260)}
+.callout-advantage{--callout-bg:color-mix(in oklab,oklch(0.72 0.18 155) 12%,transparent);--callout-border:color-mix(in oklab,oklch(0.72 0.18 155) 40%,transparent);--callout-fg:oklch(0.4 0.15 155)}
+.callout-disadvantage{--callout-bg:color-mix(in oklab,oklch(0.7 0.2 20) 10%,transparent);--callout-border:color-mix(in oklab,oklch(0.7 0.2 20) 40%,transparent);--callout-fg:oklch(0.45 0.19 20)}
+.callout-blue{--callout-bg:color-mix(in oklab,oklch(0.65 0.16 240) 10%,transparent);--callout-border:color-mix(in oklab,oklch(0.65 0.16 240) 40%,transparent);--callout-fg:oklch(0.4 0.15 240)}
+.callout-green{--callout-bg:color-mix(in oklab,oklch(0.72 0.18 155) 12%,transparent);--callout-border:color-mix(in oklab,oklch(0.72 0.18 155) 40%,transparent);--callout-fg:oklch(0.4 0.15 155)}
+.callout-red{--callout-bg:color-mix(in oklab,oklch(0.65 0.22 20) 10%,transparent);--callout-border:color-mix(in oklab,oklch(0.65 0.22 20) 45%,transparent);--callout-fg:oklch(0.42 0.2 20)}
+.callout-yellow{--callout-bg:color-mix(in oklab,oklch(0.82 0.18 90) 15%,transparent);--callout-border:color-mix(in oklab,oklch(0.82 0.18 90) 45%,transparent);--callout-fg:oklch(0.45 0.16 80)}
+.callout-orange{--callout-bg:color-mix(in oklab,oklch(0.75 0.18 55) 12%,transparent);--callout-border:color-mix(in oklab,oklch(0.75 0.18 55) 45%,transparent);--callout-fg:oklch(0.44 0.17 45)}
+.callout-purple{--callout-bg:color-mix(in oklab,oklch(0.65 0.2 310) 10%,transparent);--callout-border:color-mix(in oklab,oklch(0.65 0.2 310) 40%,transparent);--callout-fg:oklch(0.42 0.18 310)}
+.callout-gray{--callout-bg:color-mix(in oklab,oklch(0.6 0.01 250) 12%,transparent);--callout-border:color-mix(in oklab,oklch(0.6 0.01 250) 40%,transparent);--callout-fg:oklch(0.4 0.02 250)}
+.callout-teal{--callout-bg:color-mix(in oklab,oklch(0.68 0.15 185) 11%,transparent);--callout-border:color-mix(in oklab,oklch(0.68 0.15 185) 40%,transparent);--callout-fg:oklch(0.38 0.13 185)}
+.callout-cyan{--callout-bg:color-mix(in oklab,oklch(0.72 0.14 210) 12%,transparent);--callout-border:color-mix(in oklab,oklch(0.72 0.14 210) 42%,transparent);--callout-fg:oklch(0.38 0.12 210)}
+.callout-pink{--callout-bg:color-mix(in oklab,oklch(0.72 0.2 350) 10%,transparent);--callout-border:color-mix(in oklab,oklch(0.72 0.2 350) 40%,transparent);--callout-fg:oklch(0.42 0.18 350)}
+.callout-rose{--callout-bg:color-mix(in oklab,oklch(0.67 0.22 5) 10%,transparent);--callout-border:color-mix(in oklab,oklch(0.67 0.22 5) 42%,transparent);--callout-fg:oklch(0.42 0.2 5)}
+.callout-indigo{--callout-bg:color-mix(in oklab,oklch(0.6 0.2 270) 10%,transparent);--callout-border:color-mix(in oklab,oklch(0.6 0.2 270) 40%,transparent);--callout-fg:oklch(0.4 0.18 270)}
+.callout-violet{--callout-bg:color-mix(in oklab,oklch(0.63 0.22 295) 10%,transparent);--callout-border:color-mix(in oklab,oklch(0.63 0.22 295) 40%,transparent);--callout-fg:oklch(0.4 0.2 295)}
+.callout-lime{--callout-bg:color-mix(in oklab,oklch(0.78 0.2 125) 12%,transparent);--callout-border:color-mix(in oklab,oklch(0.78 0.2 125) 42%,transparent);--callout-fg:oklch(0.4 0.16 125)}
+.callout-amber{--callout-bg:color-mix(in oklab,oklch(0.8 0.18 75) 14%,transparent);--callout-border:color-mix(in oklab,oklch(0.8 0.18 75) 45%,transparent);--callout-fg:oklch(0.44 0.16 65)}
+.callout-sky{--callout-bg:color-mix(in oklab,oklch(0.7 0.15 225) 11%,transparent);--callout-border:color-mix(in oklab,oklch(0.7 0.15 225) 40%,transparent);--callout-fg:oklch(0.38 0.14 225)}
+.callout-slate{--callout-bg:color-mix(in oklab,oklch(0.58 0.04 240) 12%,transparent);--callout-border:color-mix(in oklab,oklch(0.58 0.04 240) 40%,transparent);--callout-fg:oklch(0.36 0.04 240)}
+.callout-peach{--callout-bg:color-mix(in oklab,#ffb5b5 18%,transparent);--callout-border:color-mix(in oklab,#ffb5b5 50%,transparent);--callout-fg:oklch(0.42 0.14 15)}
+/* Prism token colors — same palette as the live preview */
+.token.comment,.token.prolog,.token.doctype,.token.cdata{color:oklch(0.65 0.03 250)}
+.token.punctuation{color:oklch(0.85 0.02 230)}
+.token.property,.token.tag,.token.constant,.token.symbol,.token.deleted{color:oklch(0.75 0.18 20)}
+.token.boolean,.token.number{color:oklch(0.8 0.15 70)}
+.token.selector,.token.attr-name,.token.string,.token.char,.token.builtin,.token.inserted{color:oklch(0.82 0.15 155)}
+.token.operator,.token.entity,.token.url,.token.variable{color:oklch(0.85 0.1 200)}
+.token.atrule,.token.attr-value,.token.function,.token.class-name{color:oklch(0.82 0.16 300)}
+.token.keyword{color:oklch(0.78 0.17 260)}
+.token.regex,.token.important{color:oklch(0.8 0.18 60)}
+@media (prefers-color-scheme:dark){:root:not(.light){--fg:oklch(0.95 0.01 230);--muted-fg:oklch(0.7 0.03 240);--border:oklch(0.3 0.03 250);--accent:oklch(0.72 0.14 235);--accent-soft:color-mix(in oklab,oklch(0.72 0.14 235) 12%,transparent);--card:oklch(0.21 0.025 250);--code-bg:oklch(0.14 0.02 250);--code-fg:oklch(0.95 0.01 230);--code-border:oklch(0.28 0.03 250);--inline-code-bg:oklch(0.25 0.025 250);--inline-code-fg:oklch(0.95 0.01 230);--page-bg:linear-gradient(180deg,oklch(0.19 0.03 250) 0%,oklch(0.16 0.02 250) 100%);--doc-shadow:0 20px 60px -20px rgba(0,0,0,.5),0 4px 14px -4px rgba(0,0,0,.3);--thead-bg:color-mix(in oklab,oklch(0.72 0.14 235) 10%,transparent);--toggle-bg:oklch(0.28 0.03 250);--toggle-fg:oklch(0.85 0.02 230);--toggle-hover:oklch(0.33 0.04 250)}}
+@media (max-width:640px){body{padding:12px 8px}.doc{padding:20px 16px;border-radius:12px}h1{font-size:1.7rem}.title-row{align-items:flex-start}.badge{font-size:12px;padding:5px 10px}}
+@media print{body{background:#fff;padding:0}.doc{box-shadow:none;border:0;padding:0;max-width:none}.theme-toggle{display:none}}
+</style>
+</head>
+<body>
+<button id="theme-toggle" class="theme-toggle" aria-label="Toggle dark/light mode"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9z"/></svg></button>
+<main class="page"><article class="doc"><h1>SORTING ALGORITHMS</h1>
+
+
+<h2>🔹 1. Bubble Sort</h2>
+
+
+<h3>💡 Intuition (Visual Thinking)</h3>
+
+
+<p>Imagine bubbles in water 🫧
+👉 Larger elements <strong>&quot;bubble up&quot; to the end</strong> after each pass.</p>
+
+
+<p>After every iteration:</p>
+
+
+<ul>
+<li>The <strong>largest unsorted element moves to its correct position</strong></li>
+</ul>
+
+
+<h3>⚙️ Core Idea</h3>
+
+
+<ul>
+<li>Compare adjacent elements</li>
+<li>Swap if they are in wrong order</li>
+<li>Repeat for all elements</li>
+</ul>
+
+
+<h3>⏱️ Complexity</h3>
+
+
+<table>
+<thead>
+<tr>
+<th>Case</th>
+<th>Time Complexity</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Best</td>
+<td>O(n) <em>(optimized version)</em></td>
+</tr>
+<tr>
+<td>Average</td>
+<td>O(n²)</td>
+</tr>
+<tr>
+<td>Worst</td>
+<td>O(n²)</td>
+</tr>
+</tbody></table>
+
+
+<p>Space Complexity: <strong>O(1)</strong> (in-place)</p>
+
+
+<h3>💻 Java Code</h3>
+
+
+<pre class="language-java"><code class="language-java"><span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">BubbleSort</span> <span class="token punctuation">{</span>
+
+    <span class="token keyword">public</span> <span class="token keyword">static</span> <span class="token keyword">void</span> <span class="token function">bubbleSort</span><span class="token punctuation">(</span><span class="token keyword">int</span><span class="token punctuation">[</span><span class="token punctuation">]</span> arr<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token keyword">int</span> n <span class="token operator">=</span> arr<span class="token punctuation">.</span>length<span class="token punctuation">;</span>
+        <span class="token keyword">boolean</span> swapped<span class="token punctuation">;</span>
+
+        <span class="token keyword">for</span> <span class="token punctuation">(</span><span class="token keyword">int</span> i <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span> i <span class="token operator">&lt;</span> n <span class="token operator">-</span> <span class="token number">1</span><span class="token punctuation">;</span> i<span class="token operator">++</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+            swapped <span class="token operator">=</span> <span class="token boolean">false</span><span class="token punctuation">;</span>
+
+            <span class="token keyword">for</span> <span class="token punctuation">(</span><span class="token keyword">int</span> j <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span> j <span class="token operator">&lt;</span> n <span class="token operator">-</span> i <span class="token operator">-</span> <span class="token number">1</span><span class="token punctuation">;</span> j<span class="token operator">++</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+                <span class="token keyword">if</span> <span class="token punctuation">(</span>arr<span class="token punctuation">[</span>j<span class="token punctuation">]</span> <span class="token operator">></span> arr<span class="token punctuation">[</span>j <span class="token operator">+</span> <span class="token number">1</span><span class="token punctuation">]</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+                    <span class="token comment">// swap</span>
+                    <span class="token keyword">int</span> temp <span class="token operator">=</span> arr<span class="token punctuation">[</span>j<span class="token punctuation">]</span><span class="token punctuation">;</span>
+                    arr<span class="token punctuation">[</span>j<span class="token punctuation">]</span> <span class="token operator">=</span> arr<span class="token punctuation">[</span>j <span class="token operator">+</span> <span class="token number">1</span><span class="token punctuation">]</span><span class="token punctuation">;</span>
+                    arr<span class="token punctuation">[</span>j <span class="token operator">+</span> <span class="token number">1</span><span class="token punctuation">]</span> <span class="token operator">=</span> temp<span class="token punctuation">;</span>
+                    swapped <span class="token operator">=</span> <span class="token boolean">true</span><span class="token punctuation">;</span>
+                <span class="token punctuation">}</span>
+            <span class="token punctuation">}</span>
+
+            <span class="token comment">// Optimization: stop if already sorted</span>
+            <span class="token keyword">if</span> <span class="token punctuation">(</span><span class="token operator">!</span>swapped<span class="token punctuation">)</span> <span class="token keyword">break</span><span class="token punctuation">;</span>
+        <span class="token punctuation">}</span>
+    <span class="token punctuation">}</span>
+
+    <span class="token keyword">public</span> <span class="token keyword">static</span> <span class="token keyword">void</span> <span class="token function">main</span><span class="token punctuation">(</span><span class="token class-name">String</span><span class="token punctuation">[</span><span class="token punctuation">]</span> args<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token keyword">int</span><span class="token punctuation">[</span><span class="token punctuation">]</span> arr <span class="token operator">=</span> <span class="token punctuation">{</span><span class="token number">5</span><span class="token punctuation">,</span> <span class="token number">3</span><span class="token punctuation">,</span> <span class="token number">8</span><span class="token punctuation">,</span> <span class="token number">4</span><span class="token punctuation">,</span> <span class="token number">2</span><span class="token punctuation">}</span><span class="token punctuation">;</span>
+        <span class="token function">bubbleSort</span><span class="token punctuation">(</span>arr<span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token keyword">for</span> <span class="token punctuation">(</span><span class="token keyword">int</span> num <span class="token operator">:</span> arr<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+            <span class="token class-name">System</span><span class="token punctuation">.</span>out<span class="token punctuation">.</span><span class="token function">print</span><span class="token punctuation">(</span>num <span class="token operator">+</span> <span class="token string">" "</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token punctuation">}</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span></code></pre>
+
+<h3>💡 Why <code>n - i - 1</code> in Bubble Sort?</h3>
+
+
+<p><strong>🔥 Core Idea</strong></p>
+
+
+<p>After every outer loop iteration:</p>
+
+
+<p>👉 The <strong>largest element in the unsorted part is already placed at the correct position (end)</strong></p>
+
+
+<p>So we <strong>don&#39;t need to compare it again</strong></p>
+
+
+<hr>
+
+
+<h2>🔹 2. Selection Sort</h2>
+
+
+<h3>💡 Intuition (Think Like This)</h3>
+
+
+<p>👉 &quot;Find the <strong>smallest element</strong> and put it in the correct place&quot;</p>
+
+
+<p>Instead of bubbling the largest to the end (like Bubble Sort),
+we <strong>select the minimum and place it at the beginning</strong></p>
+
+
+<h3>⚙️ Core Idea</h3>
+
+
+<p>For every index <code>i</code>:</p>
+
+
+<ol>
+<li>Assume <code>i</code> is minimum</li>
+<li>Search for actual minimum in remaining array</li>
+<li>Swap with <code>i</code></li>
+</ol>
+
+
+<h3>⏱️ Complexity</h3>
+
+
+<table>
+<thead>
+<tr>
+<th>Case</th>
+<th>Time Complexity</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Best</td>
+<td>O(n²)</td>
+</tr>
+<tr>
+<td>Average</td>
+<td>O(n²)</td>
+</tr>
+<tr>
+<td>Worst</td>
+<td>O(n²)</td>
+</tr>
+</tbody></table>
+
+
+<ul>
+<li>Space Complexity: <strong>O(1)</strong> (in-place)</li>
+</ul>
+
+
+<p>👉 Important:
+Even if array is sorted, it still checks everything → no optimization like Bubble Sort</p>
+
+
+<h3>💻 Java Code</h3>
+
+
+<pre class="language-java"><code class="language-java"><span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">SelectionSort</span> <span class="token punctuation">{</span>
+
+    <span class="token keyword">public</span> <span class="token keyword">static</span> <span class="token keyword">void</span> <span class="token function">selectionSort</span><span class="token punctuation">(</span><span class="token keyword">int</span><span class="token punctuation">[</span><span class="token punctuation">]</span> arr<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token keyword">int</span> n <span class="token operator">=</span> arr<span class="token punctuation">.</span>length<span class="token punctuation">;</span>
+
+        <span class="token keyword">for</span> <span class="token punctuation">(</span><span class="token keyword">int</span> i <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span> i <span class="token operator">&lt;</span> n <span class="token operator">-</span> <span class="token number">1</span><span class="token punctuation">;</span> i<span class="token operator">++</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+            <span class="token keyword">int</span> minIndex <span class="token operator">=</span> i<span class="token punctuation">;</span>
+
+            <span class="token comment">// find minimum element</span>
+            <span class="token keyword">for</span> <span class="token punctuation">(</span><span class="token keyword">int</span> j <span class="token operator">=</span> i <span class="token operator">+</span> <span class="token number">1</span><span class="token punctuation">;</span> j <span class="token operator">&lt;</span> n<span class="token punctuation">;</span> j<span class="token operator">++</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+                <span class="token keyword">if</span> <span class="token punctuation">(</span>arr<span class="token punctuation">[</span>j<span class="token punctuation">]</span> <span class="token operator">&lt;</span> arr<span class="token punctuation">[</span>minIndex<span class="token punctuation">]</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+                    minIndex <span class="token operator">=</span> j<span class="token punctuation">;</span>
+                <span class="token punctuation">}</span>
+            <span class="token punctuation">}</span>
+
+            <span class="token comment">// swap</span>
+            <span class="token keyword">int</span> temp <span class="token operator">=</span> arr<span class="token punctuation">[</span>minIndex<span class="token punctuation">]</span><span class="token punctuation">;</span>
+            arr<span class="token punctuation">[</span>minIndex<span class="token punctuation">]</span> <span class="token operator">=</span> arr<span class="token punctuation">[</span>i<span class="token punctuation">]</span><span class="token punctuation">;</span>
+            arr<span class="token punctuation">[</span>i<span class="token punctuation">]</span> <span class="token operator">=</span> temp<span class="token punctuation">;</span>
+        <span class="token punctuation">}</span>
+    <span class="token punctuation">}</span>
+
+    <span class="token keyword">public</span> <span class="token keyword">static</span> <span class="token keyword">void</span> <span class="token function">main</span><span class="token punctuation">(</span><span class="token class-name">String</span><span class="token punctuation">[</span><span class="token punctuation">]</span> args<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token keyword">int</span><span class="token punctuation">[</span><span class="token punctuation">]</span> arr <span class="token operator">=</span> <span class="token punctuation">{</span><span class="token number">5</span><span class="token punctuation">,</span> <span class="token number">3</span><span class="token punctuation">,</span> <span class="token number">8</span><span class="token punctuation">,</span> <span class="token number">4</span><span class="token punctuation">,</span> <span class="token number">2</span><span class="token punctuation">}</span><span class="token punctuation">;</span>
+        <span class="token function">selectionSort</span><span class="token punctuation">(</span>arr<span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token keyword">for</span> <span class="token punctuation">(</span><span class="token keyword">int</span> num <span class="token operator">:</span> arr<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+            <span class="token class-name">System</span><span class="token punctuation">.</span>out<span class="token punctuation">.</span><span class="token function">print</span><span class="token punctuation">(</span>num <span class="token operator">+</span> <span class="token string">" "</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token punctuation">}</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span></code></pre>
+
+<h3>🎯 Interview Insight</h3>
+
+
+<p>👉 Selection Sort is useful when:</p>
+
+
+<ul>
+<li>Swapping is <strong>costly</strong></li>
+<li>You want <strong>minimum swaps</strong></li>
+</ul>
+
+
+<hr>
+
+
+<h2>🔹 3. Insertion Sort (🔥 Highly Important)</h2>
+
+
+<p>This one is:</p>
+
+
+<ul>
+<li>Used in <strong>real systems (like TimSort)</strong></li>
+<li>Very strong for <strong>interviews</strong></li>
+</ul>
+
+
+<h3>💡 Real-Life Intuition (This will click)</h3>
+
+
+<p><strong>🃏 Think of Playing Cards in Your Hand</strong></p>
+
+
+<p>When you get cards, you don&#39;t randomly sort everything again.</p>
+
+
+<p>👉 You do this:</p>
+
+
+<ol>
+<li>Hold already sorted cards in your hand</li>
+<li>Pick a new card</li>
+<li>Insert it into the <strong>correct position</strong></li>
+</ol>
+
+
+<h3>⚙️ Core Idea</h3>
+
+
+<ul>
+<li>Maintain a <strong>sorted left portion</strong></li>
+<li>Take one element</li>
+<li>Shift elements right to make space</li>
+<li>Insert at correct position</li>
+</ul>
+
+
+<h3>⏱️ Complexity</h3>
+
+
+<table>
+<thead>
+<tr>
+<th>Case</th>
+<th>Time Complexity</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Best</td>
+<td>O(n) <em>(already sorted)</em></td>
+</tr>
+<tr>
+<td>Average</td>
+<td>O(n²)</td>
+</tr>
+<tr>
+<td>Worst</td>
+<td>O(n²)</td>
+</tr>
+</tbody></table>
+
+
+<p>Space Complexity: <strong>O(1)</strong></p>
+
+
+<h3>💻 Java Code</h3>
+
+
+<pre class="language-java"><code class="language-java"><span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">InsertionSort</span> <span class="token punctuation">{</span>
+
+    <span class="token keyword">public</span> <span class="token keyword">static</span> <span class="token keyword">void</span> <span class="token function">insertionSort</span><span class="token punctuation">(</span><span class="token keyword">int</span><span class="token punctuation">[</span><span class="token punctuation">]</span> arr<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token keyword">int</span> n <span class="token operator">=</span> arr<span class="token punctuation">.</span>length<span class="token punctuation">;</span>
+
+        <span class="token keyword">for</span> <span class="token punctuation">(</span><span class="token keyword">int</span> i <span class="token operator">=</span> <span class="token number">1</span><span class="token punctuation">;</span> i <span class="token operator">&lt;</span> n<span class="token punctuation">;</span> i<span class="token operator">++</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+            <span class="token keyword">int</span> key <span class="token operator">=</span> arr<span class="token punctuation">[</span>i<span class="token punctuation">]</span><span class="token punctuation">;</span>   <span class="token comment">// element to insert</span>
+            <span class="token keyword">int</span> j <span class="token operator">=</span> i <span class="token operator">-</span> <span class="token number">1</span><span class="token punctuation">;</span>
+
+            <span class="token comment">// shift elements greater than key</span>
+            <span class="token keyword">while</span> <span class="token punctuation">(</span>j <span class="token operator">>=</span> <span class="token number">0</span> <span class="token operator">&amp;&amp;</span> arr<span class="token punctuation">[</span>j<span class="token punctuation">]</span> <span class="token operator">></span> key<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+                arr<span class="token punctuation">[</span>j <span class="token operator">+</span> <span class="token number">1</span><span class="token punctuation">]</span> <span class="token operator">=</span> arr<span class="token punctuation">[</span>j<span class="token punctuation">]</span><span class="token punctuation">;</span>
+                j<span class="token operator">--</span><span class="token punctuation">;</span>
+            <span class="token punctuation">}</span>
+
+            <span class="token comment">// place key at correct position</span>
+            arr<span class="token punctuation">[</span>j <span class="token operator">+</span> <span class="token number">1</span><span class="token punctuation">]</span> <span class="token operator">=</span> key<span class="token punctuation">;</span>
+        <span class="token punctuation">}</span>
+    <span class="token punctuation">}</span>
+
+    <span class="token keyword">public</span> <span class="token keyword">static</span> <span class="token keyword">void</span> <span class="token function">main</span><span class="token punctuation">(</span><span class="token class-name">String</span><span class="token punctuation">[</span><span class="token punctuation">]</span> args<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token keyword">int</span><span class="token punctuation">[</span><span class="token punctuation">]</span> arr <span class="token operator">=</span> <span class="token punctuation">{</span><span class="token number">5</span><span class="token punctuation">,</span> <span class="token number">3</span><span class="token punctuation">,</span> <span class="token number">8</span><span class="token punctuation">,</span> <span class="token number">4</span><span class="token punctuation">,</span> <span class="token number">2</span><span class="token punctuation">}</span><span class="token punctuation">;</span>
+        <span class="token function">insertionSort</span><span class="token punctuation">(</span>arr<span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token keyword">for</span> <span class="token punctuation">(</span><span class="token keyword">int</span> num <span class="token operator">:</span> arr<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+            <span class="token class-name">System</span><span class="token punctuation">.</span>out<span class="token punctuation">.</span><span class="token function">print</span><span class="token punctuation">(</span>num <span class="token operator">+</span> <span class="token string">" "</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token punctuation">}</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span></code></pre>
+
+<hr>
+
+
+<h2>🔹 4. Merge Sort (Divide &amp; Conquer)</h2>
+
+
+<h3>💡 Intuition (This is EVERYTHING)</h3>
+
+
+<p>👉 &quot;Break → Sort → Merge&quot;</p>
+
+
+<p>Instead of sorting directly:</p>
+
+
+<ol>
+<li><strong>Divide</strong> array into halves</li>
+<li><strong>Sort each half recursively</strong></li>
+<li><strong>Merge sorted halves</strong></li>
+</ol>
+
+
+<h3>⚙️ Core Idea</h3>
+
+
+<p>👉 Recursively divide
+👉 Merge sorted arrays using <strong>two pointers</strong></p>
+
+
+<h3>⏱️ Complexity</h3>
+
+
+<table>
+<thead>
+<tr>
+<th>Case</th>
+<th>Time Complexity</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Best</td>
+<td>O(n log n)</td>
+</tr>
+<tr>
+<td>Average</td>
+<td>O(n log n)</td>
+</tr>
+<tr>
+<td>Worst</td>
+<td>O(n log n)</td>
+</tr>
+</tbody></table>
+
+
+<p><strong>Why?</strong></p>
+
+
+<ul>
+<li>Splitting: log n levels</li>
+<li>Merging: n work each level</li>
+</ul>
+
+
+<h3>📦 Space Complexity</h3>
+
+
+<p>👉 <strong>O(n)</strong> (extra array needed for merging)</p>
+
+
+<h3>💻 Java Code</h3>
+
+
+<pre class="language-java"><code class="language-java"><span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">MergeSort</span> <span class="token punctuation">{</span>
+
+    <span class="token keyword">public</span> <span class="token keyword">static</span> <span class="token keyword">void</span> <span class="token function">mergeSort</span><span class="token punctuation">(</span><span class="token keyword">int</span><span class="token punctuation">[</span><span class="token punctuation">]</span> arr<span class="token punctuation">,</span> <span class="token keyword">int</span> left<span class="token punctuation">,</span> <span class="token keyword">int</span> right<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token keyword">if</span> <span class="token punctuation">(</span>left <span class="token operator">>=</span> right<span class="token punctuation">)</span> <span class="token keyword">return</span><span class="token punctuation">;</span>
+
+        <span class="token keyword">int</span> mid <span class="token operator">=</span> left <span class="token operator">+</span> <span class="token punctuation">(</span>right <span class="token operator">-</span> left<span class="token punctuation">)</span> <span class="token operator">/</span> <span class="token number">2</span><span class="token punctuation">;</span>
+
+        <span class="token comment">// divide</span>
+        <span class="token function">mergeSort</span><span class="token punctuation">(</span>arr<span class="token punctuation">,</span> left<span class="token punctuation">,</span> mid<span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token function">mergeSort</span><span class="token punctuation">(</span>arr<span class="token punctuation">,</span> mid <span class="token operator">+</span> <span class="token number">1</span><span class="token punctuation">,</span> right<span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+        <span class="token comment">// merge</span>
+        <span class="token function">merge</span><span class="token punctuation">(</span>arr<span class="token punctuation">,</span> left<span class="token punctuation">,</span> mid<span class="token punctuation">,</span> right<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+
+    <span class="token keyword">public</span> <span class="token keyword">static</span> <span class="token keyword">void</span> <span class="token function">merge</span><span class="token punctuation">(</span><span class="token keyword">int</span><span class="token punctuation">[</span><span class="token punctuation">]</span> arr<span class="token punctuation">,</span> <span class="token keyword">int</span> left<span class="token punctuation">,</span> <span class="token keyword">int</span> mid<span class="token punctuation">,</span> <span class="token keyword">int</span> right<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token keyword">int</span> n1 <span class="token operator">=</span> mid <span class="token operator">-</span> left <span class="token operator">+</span> <span class="token number">1</span><span class="token punctuation">;</span>
+        <span class="token keyword">int</span> n2 <span class="token operator">=</span> right <span class="token operator">-</span> mid<span class="token punctuation">;</span>
+
+        <span class="token keyword">int</span><span class="token punctuation">[</span><span class="token punctuation">]</span> leftArr <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token keyword">int</span><span class="token punctuation">[</span>n1<span class="token punctuation">]</span><span class="token punctuation">;</span>
+        <span class="token keyword">int</span><span class="token punctuation">[</span><span class="token punctuation">]</span> rightArr <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token keyword">int</span><span class="token punctuation">[</span>n2<span class="token punctuation">]</span><span class="token punctuation">;</span>
+
+        <span class="token comment">// copy data</span>
+        <span class="token keyword">for</span> <span class="token punctuation">(</span><span class="token keyword">int</span> i <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span> i <span class="token operator">&lt;</span> n1<span class="token punctuation">;</span> i<span class="token operator">++</span><span class="token punctuation">)</span>
+            leftArr<span class="token punctuation">[</span>i<span class="token punctuation">]</span> <span class="token operator">=</span> arr<span class="token punctuation">[</span>left <span class="token operator">+</span> i<span class="token punctuation">]</span><span class="token punctuation">;</span>
+
+        <span class="token keyword">for</span> <span class="token punctuation">(</span><span class="token keyword">int</span> j <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span> j <span class="token operator">&lt;</span> n2<span class="token punctuation">;</span> j<span class="token operator">++</span><span class="token punctuation">)</span>
+            rightArr<span class="token punctuation">[</span>j<span class="token punctuation">]</span> <span class="token operator">=</span> arr<span class="token punctuation">[</span>mid <span class="token operator">+</span> <span class="token number">1</span> <span class="token operator">+</span> j<span class="token punctuation">]</span><span class="token punctuation">;</span>
+
+        <span class="token keyword">int</span> i <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">,</span> j <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">,</span> k <span class="token operator">=</span> left<span class="token punctuation">;</span>
+
+        <span class="token comment">// merge arrays</span>
+        <span class="token keyword">while</span> <span class="token punctuation">(</span>i <span class="token operator">&lt;</span> n1 <span class="token operator">&amp;&amp;</span> j <span class="token operator">&lt;</span> n2<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+            <span class="token keyword">if</span> <span class="token punctuation">(</span>leftArr<span class="token punctuation">[</span>i<span class="token punctuation">]</span> <span class="token operator">&lt;=</span> rightArr<span class="token punctuation">[</span>j<span class="token punctuation">]</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+                arr<span class="token punctuation">[</span>k<span class="token operator">++</span><span class="token punctuation">]</span> <span class="token operator">=</span> leftArr<span class="token punctuation">[</span>i<span class="token operator">++</span><span class="token punctuation">]</span><span class="token punctuation">;</span>
+            <span class="token punctuation">}</span> <span class="token keyword">else</span> <span class="token punctuation">{</span>
+                arr<span class="token punctuation">[</span>k<span class="token operator">++</span><span class="token punctuation">]</span> <span class="token operator">=</span> rightArr<span class="token punctuation">[</span>j<span class="token operator">++</span><span class="token punctuation">]</span><span class="token punctuation">;</span>
+            <span class="token punctuation">}</span>
+        <span class="token punctuation">}</span>
+
+        <span class="token comment">// remaining elements</span>
+        <span class="token keyword">while</span> <span class="token punctuation">(</span>i <span class="token operator">&lt;</span> n1<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+            arr<span class="token punctuation">[</span>k<span class="token operator">++</span><span class="token punctuation">]</span> <span class="token operator">=</span> leftArr<span class="token punctuation">[</span>i<span class="token operator">++</span><span class="token punctuation">]</span><span class="token punctuation">;</span>
+        <span class="token punctuation">}</span>
+
+        <span class="token keyword">while</span> <span class="token punctuation">(</span>j <span class="token operator">&lt;</span> n2<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+            arr<span class="token punctuation">[</span>k<span class="token operator">++</span><span class="token punctuation">]</span> <span class="token operator">=</span> rightArr<span class="token punctuation">[</span>j<span class="token operator">++</span><span class="token punctuation">]</span><span class="token punctuation">;</span>
+        <span class="token punctuation">}</span>
+    <span class="token punctuation">}</span>
+
+    <span class="token keyword">public</span> <span class="token keyword">static</span> <span class="token keyword">void</span> <span class="token function">main</span><span class="token punctuation">(</span><span class="token class-name">String</span><span class="token punctuation">[</span><span class="token punctuation">]</span> args<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token keyword">int</span><span class="token punctuation">[</span><span class="token punctuation">]</span> arr <span class="token operator">=</span> <span class="token punctuation">{</span><span class="token number">5</span><span class="token punctuation">,</span> <span class="token number">3</span><span class="token punctuation">,</span> <span class="token number">8</span><span class="token punctuation">,</span> <span class="token number">4</span><span class="token punctuation">,</span> <span class="token number">2</span><span class="token punctuation">}</span><span class="token punctuation">;</span>
+        <span class="token function">mergeSort</span><span class="token punctuation">(</span>arr<span class="token punctuation">,</span> <span class="token number">0</span><span class="token punctuation">,</span> arr<span class="token punctuation">.</span>length <span class="token operator">-</span> <span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token keyword">for</span> <span class="token punctuation">(</span><span class="token keyword">int</span> num <span class="token operator">:</span> arr<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+            <span class="token class-name">System</span><span class="token punctuation">.</span>out<span class="token punctuation">.</span><span class="token function">print</span><span class="token punctuation">(</span>num <span class="token operator">+</span> <span class="token string">" "</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token punctuation">}</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span></code></pre>
+
+<h3>💡 What are we trying to do here?</h3>
+
+
+<p>In merge sort, at some point you have:</p>
+
+
+<p>👉 Two <strong>sorted halves</strong>, and you want to merge them</p>
+
+
+<pre><code>arr = [ ... left part ... | ... right part ... ]
+        left → mid          mid+1 → right</code></pre>
+
+<h3>🧠 Example (Fix this in your mind)</h3>
+
+
+<pre><code>arr = [5, 3, 8, 4, 2]</code></pre>
+
+<p>Suppose:</p>
+
+
+<pre><code>left  = 0
+mid   = 2
+right = 4</code></pre>
+
+<p>So array is split as:</p>
+
+
+<pre><code>Left part  → [5, 3, 8]   (index 0 to 2)
+Right part → [4, 2]      (index 3 to 4)</code></pre>
+
+<h3>🔹 Why <code>n1 = mid - left + 1</code> ?</h3>
+
+
+<p>👉 We want <strong>number of elements in left part</strong></p>
+
+
+<p>Formula:</p>
+
+
+<pre><code>n1 = (last index - first index) + 1</code></pre>
+
+<p>So:</p>
+
+
+<pre><code>n1 = mid - left + 1
+   = 2 - 0 + 1
+   = 3</code></pre>
+
+<p>✔️ Correct → <code>[5, 3, 8]</code> has 3 elements</p>
+
+
+<h3>🔹 Why <code>n2 = right - mid</code> ?</h3>
+
+
+<p>👉 Right part starts from <strong>mid + 1</strong></p>
+
+
+<p>So number of elements:</p>
+
+
+<pre><code>n2 = right - mid
+   = 4 - 2
+   = 2</code></pre>
+
+<p>✔️ Correct → <code>[4, 2]</code> has 2 elements</p>
+
+
+<h3>🔥 Why create <code>leftArr</code> and <code>rightArr</code>?</h3>
+
+
+<pre class="language-java"><code class="language-java"><span class="token keyword">int</span><span class="token punctuation">[</span><span class="token punctuation">]</span> leftArr <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token keyword">int</span><span class="token punctuation">[</span>n1<span class="token punctuation">]</span><span class="token punctuation">;</span>
+<span class="token keyword">int</span><span class="token punctuation">[</span><span class="token punctuation">]</span> rightArr <span class="token operator">=</span> <span class="token keyword">new</span> <span class="token keyword">int</span><span class="token punctuation">[</span>n2<span class="token punctuation">]</span><span class="token punctuation">;</span></code></pre>
+
+<p>👉 Because merging directly inside original array is messy</p>
+
+
+<p>So we:</p>
+
+
+<ul>
+<li>Copy left part → <code>leftArr</code></li>
+<li>Copy right part → <code>rightArr</code></li>
+</ul>
+
+
+<p>Then merge cleanly</p>
+
+
+<h3>🔹 Copying Logic (Very Important)</h3>
+
+
+<p><strong>Left Array</strong></p>
+
+
+<pre class="language-java"><code class="language-java">leftArr<span class="token punctuation">[</span>i<span class="token punctuation">]</span> <span class="token operator">=</span> arr<span class="token punctuation">[</span>left <span class="token operator">+</span> i<span class="token punctuation">]</span><span class="token punctuation">;</span></code></pre>
+
+<p>👉 Why <code>left + i</code>?</p>
+
+
+<p>Because:</p>
+
+
+<ul>
+<li>Left part starts at index <code>left</code></li>
+<li>We move forward using <code>i</code></li>
+</ul>
+
+
+<p><strong>Example:</strong></p>
+
+
+<pre><code>i = 0 → arr[0] = 5
+i = 1 → arr[1] = 3
+i = 2 → arr[2] = 8</code></pre>
+
+<p>✔️ So:</p>
+
+
+<pre><code>leftArr = [5, 3, 8]</code></pre>
+
+<p><strong>Right Array</strong></p>
+
+
+<pre class="language-java"><code class="language-java">rightArr<span class="token punctuation">[</span>j<span class="token punctuation">]</span> <span class="token operator">=</span> arr<span class="token punctuation">[</span>mid <span class="token operator">+</span> <span class="token number">1</span> <span class="token operator">+</span> j<span class="token punctuation">]</span><span class="token punctuation">;</span></code></pre>
+
+<p>👉 Why <code>mid + 1 + j</code>?</p>
+
+
+<p>Because:</p>
+
+
+<ul>
+<li>Right part starts at <strong>mid + 1</strong></li>
+<li>Then move forward using <code>j</code></li>
+</ul>
+
+
+<h3>💡 Why is <code>k = left</code>?</h3>
+
+
+<p><strong>🎯 Direct Answer</strong></p>
+
+
+<p>👉 Because we must place the merged (sorted) elements <strong>back into the same portion of the original array</strong> — starting exactly where this subarray begins.</p>
+
+
+<hr>
+
+
+<h2>🔹 5. Quick Sort (Divide &amp; Conquer)</h2>
+
+
+<h3>💡 Intuition (This is EVERYTHING)</h3>
+
+
+<p>👉 <strong>&quot;Pick → Partition → Repeat&quot;</strong></p>
+
+
+<p>Instead of dividing the array into equal halves like Merge Sort:</p>
+
+
+<ol>
+<li><strong>Choose one element as the Pivot</strong></li>
+<li><strong>Place the Pivot in its correct position</strong></li>
+<li><strong>Everything smaller goes left</strong></li>
+<li><strong>Everything larger goes right</strong></li>
+<li><strong>Repeat for left and right parts</strong></li>
+</ol>
+
+
+<p><strong>Quick Sort doesn&#39;t sort the pivot. It simply puts the pivot where it belongs.</strong></p>
+
+
+<h3>⚙️ Core Idea</h3>
+
+
+<p>👉 Choose a Pivot</p>
+
+
+<p>👉 Partition the array</p>
+
+
+<p>👉 Pivot reaches its final sorted position</p>
+
+
+<p>👉 Recursively sort left and right parts</p>
+
+
+<h3>🧠 Visualization</h3>
+
+
+<pre><code>Before
+
+5 3 8 4 2
+        ↑
+      Pivot
+
+        ↓
+
+After Partition
+
+2 | 5 3 8 4
+↑
+Pivot fixed forever
+
+        ↓
+
+Sort Right
+
+2 3 4 8 5
+
+        ↓
+
+2 3 4 5 8</code></pre>
+
+<p>Notice:</p>
+
+
+<p>Every pivot reaches its <strong>final position</strong>.</p>
+
+
+<h3>⏱️ Complexity</h3>
+
+
+<table>
+<thead>
+<tr>
+<th>Case</th>
+<th>Time Complexity</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Best</td>
+<td>O(n log n)</td>
+</tr>
+<tr>
+<td>Average</td>
+<td>O(n log n)</td>
+</tr>
+<tr>
+<td>Worst</td>
+<td>O(n²)</td>
+</tr>
+</tbody></table>
+
+
+<p><strong>Why?</strong></p>
+
+
+<p>Each partition takes</p>
+
+
+<pre><code>O(n)</code></pre>
+
+<p>If pivot divides the array roughly into half every time,</p>
+
+
+<pre><code>Levels = log n
+Work each level = n
+Total = O(n log n)</code></pre>
+
+<p>Worst case:</p>
+
+
+<p>Already sorted array</p>
+
+
+<pre><code>1 2 3 4 5</code></pre>
+
+<p>Choosing last element every time gives</p>
+
+
+<pre><code>n levels
+   ↓
+O(n²)</code></pre>
+
+<h3>📦 Space Complexity</h3>
+
+
+<pre><code>Average : O(log n)
+Worst   : O(n)</code></pre>
+
+<p>Only recursion stack is used.</p>
+
+
+<p>No extra arrays are created.</p>
+
+
+<p>👉 <strong>Quick Sort is an in-place sorting algorithm.</strong></p>
+
+
+<h3>💻 Java Code</h3>
+
+
+<pre class="language-java"><code class="language-java"><span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">QuickSort</span> <span class="token punctuation">{</span>
+
+    <span class="token keyword">public</span> <span class="token keyword">static</span> <span class="token keyword">void</span> <span class="token function">quickSort</span><span class="token punctuation">(</span><span class="token keyword">int</span><span class="token punctuation">[</span><span class="token punctuation">]</span> arr<span class="token punctuation">,</span> <span class="token keyword">int</span> low<span class="token punctuation">,</span> <span class="token keyword">int</span> high<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token keyword">if</span> <span class="token punctuation">(</span>low <span class="token operator">&lt;</span> high<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+            <span class="token keyword">int</span> pivotIndex <span class="token operator">=</span> <span class="token function">partition</span><span class="token punctuation">(</span>arr<span class="token punctuation">,</span> low<span class="token punctuation">,</span> high<span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+            <span class="token function">quickSort</span><span class="token punctuation">(</span>arr<span class="token punctuation">,</span> low<span class="token punctuation">,</span> pivotIndex <span class="token operator">-</span> <span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+            <span class="token function">quickSort</span><span class="token punctuation">(</span>arr<span class="token punctuation">,</span> pivotIndex <span class="token operator">+</span> <span class="token number">1</span><span class="token punctuation">,</span> high<span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token punctuation">}</span>
+    <span class="token punctuation">}</span>
+
+    <span class="token keyword">public</span> <span class="token keyword">static</span> <span class="token keyword">int</span> <span class="token function">partition</span><span class="token punctuation">(</span><span class="token keyword">int</span><span class="token punctuation">[</span><span class="token punctuation">]</span> arr<span class="token punctuation">,</span> <span class="token keyword">int</span> low<span class="token punctuation">,</span> <span class="token keyword">int</span> high<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token keyword">int</span> pivot <span class="token operator">=</span> arr<span class="token punctuation">[</span>high<span class="token punctuation">]</span><span class="token punctuation">;</span>
+        <span class="token keyword">int</span> i <span class="token operator">=</span> low <span class="token operator">-</span> <span class="token number">1</span><span class="token punctuation">;</span>
+
+        <span class="token keyword">for</span> <span class="token punctuation">(</span><span class="token keyword">int</span> j <span class="token operator">=</span> low<span class="token punctuation">;</span> j <span class="token operator">&lt;</span> high<span class="token punctuation">;</span> j<span class="token operator">++</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+            <span class="token keyword">if</span> <span class="token punctuation">(</span>arr<span class="token punctuation">[</span>j<span class="token punctuation">]</span> <span class="token operator">&lt;</span> pivot<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+                i<span class="token operator">++</span><span class="token punctuation">;</span>
+                <span class="token keyword">int</span> temp <span class="token operator">=</span> arr<span class="token punctuation">[</span>i<span class="token punctuation">]</span><span class="token punctuation">;</span>
+                arr<span class="token punctuation">[</span>i<span class="token punctuation">]</span> <span class="token operator">=</span> arr<span class="token punctuation">[</span>j<span class="token punctuation">]</span><span class="token punctuation">;</span>
+                arr<span class="token punctuation">[</span>j<span class="token punctuation">]</span> <span class="token operator">=</span> temp<span class="token punctuation">;</span>
+            <span class="token punctuation">}</span>
+        <span class="token punctuation">}</span>
+
+        <span class="token keyword">int</span> temp <span class="token operator">=</span> arr<span class="token punctuation">[</span>i <span class="token operator">+</span> <span class="token number">1</span><span class="token punctuation">]</span><span class="token punctuation">;</span>
+        arr<span class="token punctuation">[</span>i <span class="token operator">+</span> <span class="token number">1</span><span class="token punctuation">]</span> <span class="token operator">=</span> arr<span class="token punctuation">[</span>high<span class="token punctuation">]</span><span class="token punctuation">;</span>
+        arr<span class="token punctuation">[</span>high<span class="token punctuation">]</span> <span class="token operator">=</span> temp<span class="token punctuation">;</span>
+
+        <span class="token keyword">return</span> i <span class="token operator">+</span> <span class="token number">1</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+
+    <span class="token keyword">public</span> <span class="token keyword">static</span> <span class="token keyword">void</span> <span class="token function">main</span><span class="token punctuation">(</span><span class="token class-name">String</span><span class="token punctuation">[</span><span class="token punctuation">]</span> args<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token keyword">int</span><span class="token punctuation">[</span><span class="token punctuation">]</span> arr <span class="token operator">=</span> <span class="token punctuation">{</span><span class="token number">5</span><span class="token punctuation">,</span> <span class="token number">3</span><span class="token punctuation">,</span> <span class="token number">8</span><span class="token punctuation">,</span> <span class="token number">4</span><span class="token punctuation">,</span> <span class="token number">2</span><span class="token punctuation">}</span><span class="token punctuation">;</span>
+        <span class="token function">quickSort</span><span class="token punctuation">(</span>arr<span class="token punctuation">,</span> <span class="token number">0</span><span class="token punctuation">,</span> arr<span class="token punctuation">.</span>length <span class="token operator">-</span> <span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token keyword">for</span> <span class="token punctuation">(</span><span class="token keyword">int</span> num <span class="token operator">:</span> arr<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+            <span class="token class-name">System</span><span class="token punctuation">.</span>out<span class="token punctuation">.</span><span class="token function">print</span><span class="token punctuation">(</span>num <span class="token operator">+</span> <span class="token string">" "</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token punctuation">}</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span></code></pre>
+
+<h3>💡 What are we trying to do here?</h3>
+
+
+<p>In Quick Sort, our goal is <strong>NOT</strong> to sort the entire array in one step.</p>
+
+
+<p>Our goal is only:</p>
+
+
+<p><strong>Place one element (Pivot) in its correct position.</strong></p>
+
+
+<p>After that,</p>
+
+
+<p>everything smaller will be on its left,</p>
+
+
+<p>everything larger will be on its right.</p>
+
+
+<h3>🔹 Why choose <code>arr[high]</code> as Pivot?</h3>
+
+
+<pre class="language-java"><code class="language-java"><span class="token keyword">int</span> pivot <span class="token operator">=</span> arr<span class="token punctuation">[</span>high<span class="token punctuation">]</span><span class="token punctuation">;</span></code></pre>
+
+<p>This implementation simply chooses</p>
+
+
+<p><strong>Last element as Pivot</strong></p>
+
+
+<p>Example</p>
+
+
+<pre><code>5 3 8 4 [2]
+
+Pivot = 2</code></pre>
+
+<p>Other implementations may choose:</p>
+
+
+<ul>
+<li>First element</li>
+<li>Middle element</li>
+<li>Random element</li>
+</ul>
+
+
+<p>But here,</p>
+
+
+<p>we always choose the last element.</p>
+
+
+<h3>🔹 Why <code>i = low - 1</code>?</h3>
+
+
+<pre class="language-java"><code class="language-java"><span class="token keyword">int</span> i <span class="token operator">=</span> low <span class="token operator">-</span> <span class="token number">1</span><span class="token punctuation">;</span></code></pre>
+
+<p>This is the most confusing line.</p>
+
+
+<p>Remember this forever:</p>
+
+
+<p><strong>i always points to the last element that is smaller than the Pivot.</strong></p>
+
+
+<p>Initially,</p>
+
+
+<p>we haven&#39;t found any smaller element.</p>
+
+
+<p>So</p>
+
+
+<pre><code>i = low - 1</code></pre>
+
+<p>Example</p>
+
+
+<pre><code>low = 0
+i = -1</code></pre>
+
+<p>Meaning</p>
+
+
+<pre><code>Smaller Elements
+None</code></pre>
+
+<h3>🔹 Why does <code>j</code> start from <code>low</code>?</h3>
+
+
+<pre class="language-java"><code class="language-java"><span class="token keyword">for</span><span class="token punctuation">(</span><span class="token keyword">int</span> j <span class="token operator">=</span> low<span class="token punctuation">;</span> j <span class="token operator">&lt;</span> high<span class="token punctuation">;</span> j<span class="token operator">++</span><span class="token punctuation">)</span></code></pre>
+
+<p>Because</p>
+
+
+<p>j is the explorer.</p>
+
+
+<p>Its job is</p>
+
+
+<p>Check every element one by one.</p>
+
+
+<p>Example</p>
+
+
+<pre><code>5 3 8 4 2</code></pre>
+
+<p>j checks</p>
+
+
+<pre><code>5
+↓
+3
+↓
+8
+↓
+4</code></pre>
+
+<p>Notice</p>
+
+
+<p>It never checks</p>
+
+
+<pre><code>2</code></pre>
+
+<p>because</p>
+
+
+<p>2 is the Pivot.</p>
+
+
+<h3>🔹 Why <code>j &lt; high</code> ?</h3>
+
+
+<p>Because</p>
+
+
+<p><code>high</code></p>
+
+
+<p>contains the Pivot.</p>
+
+
+<p>We never compare Pivot with itself.</p>
+
+
+<p>So</p>
+
+
+<pre><code>j &lt; high</code></pre>
+
+<p>is correct.</p>
+
+
+<h3>🔹 What does this condition mean?</h3>
+
+
+<pre class="language-java"><code class="language-java"><span class="token keyword">if</span><span class="token punctuation">(</span>arr<span class="token punctuation">[</span>j<span class="token punctuation">]</span> <span class="token operator">&lt;</span> pivot<span class="token punctuation">)</span></code></pre>
+
+<p>It means</p>
+
+
+<p>Is this element smaller than the Pivot?</p>
+
+
+<p>If YES,</p>
+
+
+<p>move it to the left side.</p>
+
+
+<p>Otherwise,</p>
+
+
+<p>leave it on the right side.</p>
+
+
+<h3>🔹 Why do we increment <code>i</code>?</h3>
+
+
+<pre class="language-java"><code class="language-java">i<span class="token operator">++</span><span class="token punctuation">;</span></code></pre>
+
+<p>Because</p>
+
+
+<p>we found one more element</p>
+
+
+<p>that belongs on the left side.</p>
+
+
+<p>So</p>
+
+
+<p>our &quot;smaller elements region&quot;</p>
+
+
+<p>becomes larger.</p>
+
+
+<p>Think of i as</p>
+
+
+<p>Boundary of smaller elements.</p>
+
+
+<h3>🔹 Why swap <code>arr[i]</code> and <code>arr[j]</code>?</h3>
+
+
+<pre class="language-java"><code class="language-java"><span class="token keyword">int</span> temp <span class="token operator">=</span> arr<span class="token punctuation">[</span>i<span class="token punctuation">]</span><span class="token punctuation">;</span>
+arr<span class="token punctuation">[</span>i<span class="token punctuation">]</span> <span class="token operator">=</span> arr<span class="token punctuation">[</span>j<span class="token punctuation">]</span><span class="token punctuation">;</span>
+arr<span class="token punctuation">[</span>j<span class="token punctuation">]</span> <span class="token operator">=</span> temp<span class="token punctuation">;</span></code></pre>
+
+<p>Suppose</p>
+
+
+<pre><code>4 2 7 1 5</code></pre>
+
+<p>Current situation</p>
+
+
+<pre><code>Smaller | Unknown | Pivot
+
+4 2 | 7 1 | 5</code></pre>
+
+<p>When</p>
+
+
+<pre><code>1 &lt; 5</code></pre>
+
+<p>we move</p>
+
+
+<pre><code>1</code></pre>
+
+<p>into the smaller section.</p>
+
+
+<p>Result</p>
+
+
+<pre><code>4 2 1 7 5</code></pre>
+
+<h3>🔹 Why do we swap Pivot at the end?</h3>
+
+
+<pre class="language-java"><code class="language-java"><span class="token function">swap</span><span class="token punctuation">(</span>arr<span class="token punctuation">[</span>i<span class="token operator">+</span><span class="token number">1</span><span class="token punctuation">]</span><span class="token punctuation">,</span> arr<span class="token punctuation">[</span>high<span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">;</span></code></pre>
+
+<p>At this point</p>
+
+
+<pre><code>Left Side  → Smaller
+Right Side → Greater
+Pivot      → Last</code></pre>
+
+<p>Example</p>
+
+
+<pre><code>4 2 1 7 5</code></pre>
+
+<p>Pivot is still at the end.</p>
+
+
+<p>Swap</p>
+
+
+<pre><code>7</code></pre>
+
+<p>with</p>
+
+
+<pre><code>5</code></pre>
+
+<p>Result</p>
+
+
+<pre><code>4 2 1 5 7</code></pre>
+
+<p>Now</p>
+
+
+<p>Pivot is exactly where it belongs.</p>
+
+
+<h3>🔹 Why return <code>i + 1</code>?</h3>
+
+
+<pre class="language-java"><code class="language-java"><span class="token keyword">return</span> i <span class="token operator">+</span> <span class="token number">1</span><span class="token punctuation">;</span></code></pre>
+
+<p>Because</p>
+
+
+<p>after the final swap,</p>
+
+
+<p>the Pivot is stored at</p>
+
+
+<pre><code>i + 1</code></pre>
+
+<p>That index is</p>
+
+
+<p>Pivot&#39;s final sorted position.</p>
+
+
+<p>Example</p>
+
+
+<pre><code>4 2 1 5 7
+      ↑
+Pivot Index = 3</code></pre>
+
+<p>So</p>
+
+
+<pre><code>return 3;</code></pre>
+
+<h3>🔹 Why</h3>
+
+
+<pre class="language-java"><code class="language-java"><span class="token function">quickSort</span><span class="token punctuation">(</span>arr<span class="token punctuation">,</span> low<span class="token punctuation">,</span> pivotIndex <span class="token operator">-</span> <span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">;</span></code></pre>
+
+<p>Because</p>
+
+
+<p>everything left of Pivot</p>
+
+
+<p>is still unsorted.</p>
+
+
+<p>Sort it recursively.</p>
+
+
+<h3>🔹 Why</h3>
+
+
+<pre class="language-java"><code class="language-java"><span class="token function">quickSort</span><span class="token punctuation">(</span>arr<span class="token punctuation">,</span> pivotIndex <span class="token operator">+</span> <span class="token number">1</span><span class="token punctuation">,</span> high<span class="token punctuation">)</span><span class="token punctuation">;</span></code></pre>
+
+<p>Because</p>
+
+
+<p>everything right of Pivot</p>
+
+
+<p>is also unsorted.</p>
+
+
+<p>Sort it recursively.</p>
+
+
+<h3>🔹 Base Condition</h3>
+
+
+<pre class="language-java"><code class="language-java"><span class="token keyword">if</span><span class="token punctuation">(</span>low <span class="token operator">&lt;</span> high<span class="token punctuation">)</span></code></pre>
+
+<p>Meaning</p>
+
+
+<p>Does this part contain</p>
+
+
+<p>more than one element?</p>
+
+
+<p>If</p>
+
+
+<pre><code>5</code></pre>
+
+<p>Only one element.</p>
+
+
+<p>Already sorted.</p>
+
+
+<p>Stop recursion.</p>
+
+
+<h3>🎯 Meaning of Every Variable</h3>
+
+
+<table>
+<thead>
+<tr>
+<th>Variable</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>low</td>
+<td>Starting index of current subarray</td>
+</tr>
+<tr>
+<td>high</td>
+<td>Ending index of current subarray</td>
+</tr>
+<tr>
+<td>pivot</td>
+<td>Element chosen for partitioning</td>
+</tr>
+<tr>
+<td>i</td>
+<td>Boundary of elements smaller than Pivot</td>
+</tr>
+<tr>
+<td>j</td>
+<td>Explorer that scans every element</td>
+</tr>
+<tr>
+<td>pivotIndex</td>
+<td>Final position of Pivot after partition</td>
+</tr>
+</tbody></table>
+
+
+<h3>🔥 Interview One-Liner</h3>
+
+
+<p><strong>Quick Sort is a Divide and Conquer algorithm that selects a pivot, partitions the array so that smaller elements are on the left and larger elements are on the right, places the pivot in its correct sorted position, and then recursively sorts the left and right partitions.</strong></p>
+</article></main>
+</body>
+</html>
